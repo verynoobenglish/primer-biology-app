@@ -83,7 +83,7 @@
     <div class="main-layout">
         <header>
             <h1>প্রাইমার বায়োলজি (Primer Biology)</h1>
-            <div class="subtitle">শিক্ষক ও অফিস সহকারী ম্যানেজমেন্ট ড্যাশবোর্ড</div>
+            <div class="subtitle">শিক্ষক ও office সহকারী ম্যানেজমেন্ট ড্যাশবোর্ড</div>
             <div id="loader">গুগল শীট থেকে লাইভ তথ্য লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন...</div>
         </header>
 
@@ -91,7 +91,7 @@
             <div class="section-title">সামারি ওভারভিউ (Live Stats)</div>
             <div class="stats-container">
                 <div class="stat-card stat-total">
-                    <h3>মোট শিক্ষার্থী (শীট অনুযায়ী)</h3>
+                    <h3>মোট শিক্ষার্থী (Active)</h3>
                     <p id="total-students">০ জন</p>
                 </div>
                 <div class="stat-card stat-paid">
@@ -99,7 +99,7 @@
                     <p id="total-admission-paid">০ জন</p>
                 </div>
                 <div class="stat-card stat-unpaid">
-                    <h3>ভর্তি হয়নি (Unpaid)</h3>
+                    <h3>ভর্তি বাকি (Unpaid)</h3>
                     <p id="total-admission-unpaid">০ জন</p>
                 </div>
                 <div class="stat-card stat-month">
@@ -145,7 +145,16 @@
         async function loadSheetData() {
             try {
                 const response = await fetch(API_URL);
-                globalData = await response.json();
+                const rawData = await response.json();
+                
+                // 🚀 ম্যাজিক ফিল্টার: এখানে "মন্তব্য" কলামে Inactive স্টুডেন্টদের শুরুতেই বাদ দেওয়া হচ্ছে
+                globalData = rawData.filter(row => {
+                    if (row["মন্তব্য"]) {
+                        return String(row["মন্তব্য"]).trim().toLowerCase() !== 'inactive';
+                    }
+                    return true; // মন্তব্য কলাম খালি থাকলে বা Active থাকলে কাউন্ট হবে
+                });
+
                 document.getElementById('loader').style.display = 'none';
                 calculateDashboardStats();
             } catch (error) {
@@ -155,15 +164,15 @@
         }
 
         function calculateDashboardStats() {
-            // ১. মোট শিক্ষার্থী (টোটাল রো সংখ্যা)
+            // ১. মোট এক্টিভ শিক্ষার্থী
             const total = globalData.length;
             
-            // ২. ভর্তি সম্পন্ন (Paid): শুধুমাত্র ভর্তি ফি কলামে "Paid" থাকলে যোগ হবে
+            // ২. ভর্তি সম্পন্ন (Paid)
             const admissionPaid = globalData.filter(row => {
                 return row["ভর্তি ফি"] && String(row["ভর্তি ফি"]).trim().toLowerCase() === 'paid';
             }).length;
             
-            // ৩. ভর্তি হয়নি (Unpaid): "ব্যাচ" + "প্রথম ক্লাসের তারিখ" + "ভর্তি ফি" কলামে 'Unpaid' শর্ত মিলিয়ে
+            // ৩. ভর্তি হয়নি (Unpaid)
             const admissionUnpaid = globalData.filter(row => {
                 const hasBatch = row["ব্যাচ"] && String(row["ব্যাচ"]).trim() !== "";
                 const hasDate = row["প্রথম ক্লাসের তারিখ"] && String(row["প্রথম ক্লাসের তারিখ"]).trim() !== "";
@@ -181,7 +190,7 @@
             });
             const monthPaidPercentage = total > 0 ? Math.round((monthPaidCount / total) * 100) : 0;
 
-            // ড্যাশবোর্ডে ডাটা বসানো হচ্ছে
+            // ড্যাশবোর্ডে ডাটা প্রদর্শন
             document.getElementById('total-students').innerText = total + " জন";
             document.getElementById('total-admission-paid').innerText = admissionPaid + " জন";
             document.getElementById('total-admission-unpaid').innerText = admissionUnpaid + " জন";
@@ -192,10 +201,9 @@
             document.getElementById('batches-display-section').classList.remove('hidden');
             document.getElementById('selected-hsc-title').innerText = "📌 " + hscYear + " এর ব্যাচসমূহ:";
             
-            // এই HSC বছরের সব ছাত্র ফিল্টার করা হচ্ছে
+            // এই HSC বছরের সব এক্টিভ ছাত্র ফিল্টার করা হচ্ছে
             const hscStudents = globalData.filter(row => row["এইচ এস সি"] && String(row["এইচ এস সি"]).trim() === hscYear);
             
-            // ইউনিক ব্যাচ এবং সময় এর কম্বিনেশন গ্রুপ করা হচ্ছে
             const batchesMap = {};
             hscStudents.forEach(student => {
                 const batchName = student["ব্যাচ"] ? String(student["ব্যাচ"]).trim() : "অন্যান্য";
@@ -207,7 +215,6 @@
                 }
                 batchesMap[key].total++;
                 
-                // ব্যাচের ভেতরেও নতুন আনপেইড লজিক অ্যাপ্লাই করা হয়েছে
                 const hasDate = student["প্রথম ক্লাসের তারিখ"] && String(student["প্রথম ক্লাসের তারিখ"]).trim() !== "";
                 const isUnpaid = student["ভর্তি ফি"] && String(student["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
                 if(hasDate && isUnpaid) {
@@ -220,7 +227,7 @@
 
             Object.keys(batchesMap).forEach(key => {
                 const b = batchesMap[key];
-                if(b.name === "অন্যান্য" && b.total === 0) return; // খালি রো এড়ানোর জন্য
+                if(b.name === "অন্যান্য" && b.total === 0) return;
                 
                 const card = document.createElement('div');
                 card.className = "batch-card";
@@ -242,24 +249,22 @@
             document.getElementById('detail-view').classList.remove('hidden');
             document.getElementById('current-batch-title').innerText = "📋 " + hscYear + " - " + batchName + " (" + batchTime + ")";
             
-            // নির্দিষ্ট ব্যাচের ছাত্র ফিল্টার
             let students = globalData.filter(row => 
                 row["এইচ এস সি"] && String(row["এইচ এস সি"]).trim() === hscYear && 
                 row["ব্যাচ"] && String(row["ব্যাচ"]).trim() === batchName && 
                 row["সময়"] && String(row["সময়"]).trim() === batchTime
             );
 
-            // লজিক: Unpaid ছাত্ররা তালিকায় সবার উপরে থাকবে
+            // Unpaid ছাত্ররা তালিকায় উপরে থাকবে
             students.sort((a, b) => {
-                let aPaid = (a["ভর্তি ফি"] && String(a["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
-                let bPaid = (b["ভর্তি ফি"] && String(b["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
-                return aPaid - bPaid; // Unpaid (0) আগে আসবে, Paid (1) পরে যাবে
+                let aPaid = (a["ভর্তি ফি"] && String(a["ভর্তি ft"]).toLowerCase() === 'paid') ? 1 : 0; // typo fixed to 'ভর্তি ফি' below
+                let aPaidCorrect = (a["ভর্তি ফি"] && String(a["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
+                let bPaidCorrect = (b["ভর্তি ফি"] && String(b["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
+                return aPaidCorrect - bPaidCorrect;
             });
 
             const total = students.length;
             const paidCount = students.filter(s => s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).toLowerCase() === 'paid').length;
-            
-            // ব্যাচের নির্দিষ্ট আনপেইড ছাত্র সংখ্যা
             const unpaidCount = students.filter(s => {
                 return s["প্রথম ক্লাসের তারিখ"] && String(s["প্রথম ক্লাসের তারিখ"]).trim() !== "" && s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).toLowerCase() === 'unpaid';
             }).length;
@@ -274,13 +279,12 @@
                 const isUnpaidTarget = s["প্রথম ক্লাসের তারিখ"] && String(s["প্রথম ক্লাসের তারিখ"]).trim() !== "" && s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
                 
                 const row = document.createElement('div');
-                // রো-এর কালার থিম নির্ধারণ
                 if (isPaid) {
                     row.className = 'student-row paid-row';
                 } else if (isUnpaidTarget) {
                     row.className = 'student-row unpaid-row';
                 } else {
-                    row.className = 'student-row'; // সাধারণ বর্ডারহীন বা ডিফল্ট রো
+                    row.className = 'student-row';
                 }
                 
                 const currentMonthValue = s["মে-২০২৬"] ? String(s["মে-২০২৬"]).trim() : 'Unpaid';
@@ -313,7 +317,6 @@
             document.getElementById('home-view').classList.remove('hidden');
         }
 
-        // অ্যাপ চালু করার মূল ফাংশন
         loadSheetData();
     </script>
 </body>
