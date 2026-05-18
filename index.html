@@ -111,7 +111,7 @@
         </div>
       </section>
 
-      <!-- 🟨 ২য় ভাগ — টিউশন ট্র্যাকিং -->
+      <!-- 🟨 २य় ভাগ — টিউশন ট্র্যাকিং -->
       <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
         <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
           <span class="text-amber-600 bg-amber-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-wallet"></i></span>
@@ -142,7 +142,7 @@
           </div>
         </div>
 
-        <!-- ২য় ভাগের ফিল্টার ও ছক ক্লিকে ওপেন হবে -->
+        <!-- २य় ভাগের ফিল্টার ও ছক ক্লিকে ওপেন হবে -->
         <div id="containerSec2" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
           <div class="flex flex-col gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
             <div id="optFilterHsc2" class="flex flex-wrap items-center gap-1.5"></div>
@@ -182,6 +182,9 @@
   </main>
 
   <script>
+    // ⏰ সময় অঞ্চল সেটিংস — ঢাকা (+6)
+    const TIMEZONE_OFFSET = 6; // ঢাকা = UTC +6:00
+
     // 👈 १. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
@@ -196,8 +199,36 @@
     let sec2SelectedHsc = null, sec2SelectedBatch = null;
     let sec3SelectedHsc = null, sec3SelectedBatch = null;
 
-    // সেকশन १ এর জন্য প্রয়োজনীয় কলামগুলি
+    // সেকশন १ এর জন্য প্রয়োজনীয় কলামগুলি
     const SECTION1_COLUMNS = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', 'প্রথম ক্লাসের তারিখ', 'ভর্তি ফি'];
+
+    /**
+     * ঢাকা সময় অঞ্চল অনুযায়ী বর্তমান সময় ফেরত দেয়
+     */
+    function getDhakaTime() {
+      const utcDate = new Date();
+      const utcTime = utcDate.getTime() + utcDate.getTimezoneOffset() * 60000;
+      const dhakaDate = new Date(utcTime + TIMEZONE_OFFSET * 3600000);
+      return dhakaDate;
+    }
+
+    /**
+     * ঢাকা সময় অঞ্চলে ফরম্যাট করা সময় রিটার্ন করে
+     */
+    function formatDhakaTime(date) {
+      const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+      const days = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+      
+      const day = days[date.getDay()];
+      const dayNum = date.getDate();
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${day}, ${dayNum} ${month} ${year} — ${hours}:${minutes}:${seconds}`;
+    }
 
     window.addEventListener('DOMContentLoaded', () => { checkSession(); });
 
@@ -254,7 +285,11 @@
 
     function showDashboard() {
       document.getElementById('dashboardBody').classList.remove('hidden');
-      document.getElementById('liveTimestamp').innerText = globalData.timestamp;
+      
+      // ঢাকা সময় অনুযায়ী টাইমস্ট্যাম্প ডিসপ্লে করুন
+      const dhakaTime = getDhakaTime();
+      const formattedTime = formatDhakaTime(dhakaTime);
+      document.getElementById('liveTimestamp').innerText = `সর্বশেষ আপডেট: ${formattedTime}`;
       
       for(let el of document.getElementsByClassName('lblCurrentMonth')) el.innerText = globalData.currentMonthName;
       for(let el of document.getElementsByClassName('lblPrevMonth')) el.innerText = globalData.prevMonthName;
@@ -278,7 +313,7 @@
     }
 
     // ==========================================
-    // सेकशन १ — अन/अफ फिल्टर बाटन ও ছक मेकानिজम
+    // सेकशन १ — अन/अफ फिल्टर बाटन ও ছक मेकानिजम
     // ==========================================
     function toggleMainCard(type) {
       if (activeSection1Card === type) {
@@ -302,7 +337,6 @@
       if (activeSection1Card === 'vortiPaid') list = list.filter(x => x.vortiFee === 'P' || (!isNaN(x.vortiFee) && x.vortiFee !== ''));
       if (activeSection1Card === 'vortiUnpaid') list = list.filter(x => x.vortiFee === 'U');
 
-      // এইচএসসি বাটন তৈরি
       const hscValues = [...new Set(list.map(x => x.hsc).filter(Boolean))].sort();
       const hscWrapper = document.getElementById('optFilterHsc1');
       hscWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
@@ -319,7 +353,6 @@
         hscWrapper.appendChild(btn);
       });
 
-      // ব্যাচ বাটন তৈরি
       const batchWrapper = document.getElementById('optFilterBatch1');
       if (sec1SelectedHsc) {
         batchWrapper.classList.remove('hidden');
@@ -341,7 +374,6 @@
         batchWrapper.classList.add('hidden');
       }
 
-      // চূড়ান্ত ফিল্টারিং ও টেবিল বিল্ডিং
       if (sec1SelectedHsc) list = list.filter(x => x.hsc === sec1SelectedHsc);
       if (sec1SelectedBatch) list = list.filter(x => x.batch === sec1SelectedBatch);
 
@@ -414,7 +446,6 @@
       if (sec2SelectedHsc) list = list.filter(x => x.hsc === sec2SelectedHsc);
       if (sec2SelectedBatch) list = list.filter(x => x.batch === sec2SelectedBatch);
 
-      // २य় সেকশনে প্রথম ५টি ফিক্সড কলাম দেখানো হবে
       const tuitionHeaders = globalData.headers.slice(0, 5); 
       buildTable(document.getElementById('tableWrapper2'), tuitionHeaders, list, false);
     }
@@ -500,16 +531,13 @@
         html += `<tr class="hover:bg-slate-50 font-medium transition text-center text-gray-700">`;
         
         headersToDisplay.forEach(h => {
-          // গ্লোবাল ডাটা থেকে কলামের ইনডেক্স খুঁজে বের করা (ম্যাচিং ফেইলর প্রুফ)
           let globalIdx = globalData.headers.findIndex(headerName => headerName.replace(/\s+/g, '').toLowerCase() === h.replace(/\s+/g, '').toLowerCase());
           let cellValue = (globalIdx !== -1 && student.allDataRaw[globalIdx] !== undefined) ? student.allDataRaw[globalIdx] : "";
           let displayedValue = cellValue;
           
-          // মোবাইল কলাম হলে কল লিঙ্ক করা
           if (h.includes("মোবাইল") || h.includes("ফোন")) {
             displayedValue = formatPhoneLink(cellValue);
           } 
-          // পেমেন্ট স্ট্যাটাস ফরম্যাটিং
           else if (isSection1 && (h.includes("ভর্তি") || globalIdx >= globalData.headers.findIndex(x => x.includes(globalData.currentMonthName)))) {
             displayedValue = formatPaymentStatus(cellValue);
           } else if (!isSection1 && !isSection3 && (h.includes(globalData.currentMonthName) || h.includes(globalData.prevMonthName))) {
