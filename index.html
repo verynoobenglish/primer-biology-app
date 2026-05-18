@@ -33,7 +33,7 @@
         <p class="text-xs text-blue-200 font-medium mt-0.5">অফিসিয়াল স্টুডেন্ট লাইভ ডাটাবেজ প্যানেল</p>
       </div>
       <div id="liveTimestamp" class="text-xs sm:text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 font-semibold shadow-inner">
-        সর্বশেষ আপডেট: লোড হচ্ছে...
+        সর্বশেষ আপডেট: লকড 🔒
       </div>
     </div>
   </header>
@@ -71,7 +71,7 @@
     <!-- 🔄 গ্লোবাল লোডার প্যানেল -->
     <div id="globalLoader" class="hidden text-center py-16">
       <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent shadow-sm mb-4"></div>
-      <p class="text-gray-600 font-semibold text-sm">সার্ভার থেকে লাইভ তথ্য প্রসেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+      <p class="text-gray-600 font-semibold text-sm">গুগল শিট থেকে লাইভ তথ্য প্রসেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
     </div>
 
     <!-- ==========================================
@@ -175,19 +175,19 @@
         </div>
 
         <div class="space-y-4">
-          <!-- ধাপ ১: এইচএসসি ফিল্টার বাটন সারি -->
+          <!--  ধাপ ১: এইচএসসি ফিল্টার বাটন সারি -->
           <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষাবর্ষ নির্বাচন করুন</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i>  ধাপ ১: এইচএসসি (HSC) শিক্ষাবর্ষ নির্বাচন করুন</p>
             <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
           </div>
 
           <!--  ধাপ ২: ব্যাচ ফিল্টার বাটন সারি -->
           <div id="sec3BatchContainer" class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100 hidden">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ নির্বাচন করুন</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i>  ধাপ ২: নির্দিষ্ট ব্যাচ নির্বাচন করুন</p>
             <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
           </div>
 
-          <!-- ধাপ ৩: চূড়ান্ত ফিক্সড ৩ কলাম টেবিল -->
+          <!--  ধাপ ৩: চূড়ান্ত ফিক্সড ৩ কলাম টেবিল -->
           <div id="containerSec3Table" class="hidden pt-4">
             <p class="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1"><i class="fa-solid fa-table-list"></i> ডিরেক্টরি ফলাফল (নাম, কলেজ ও মোবাইল)</p>
             <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
@@ -201,11 +201,14 @@
   </main>
 
   <!-- ==========================================
-       🧠 জাভাস্ক্রিপ্ট ইঞ্জিন ও গিটহাব কানেক্টিভিটি
+       🧠 জাভাস্ক্রিপ্ট ইঞ্জিন ও কাস্টম ফ্রন্টএন্ড পাসওয়ার্ড লজিক
        ========================================== -->
   <script>
-    // 👈 অত্যন্ত গুরুত্বপূর্ণ: আপনার অ্যাপস স্ক্রিপ্ট থেকে পাওয়া ওয়েব অ্যাপ ইউআরএলটি এখানে বসান
-    const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwZW7L2ZjncEwDlae_B3R2cwAag71C-BLmCJUfq99bsFaUkjO6BVZCv97Iwf_zKIqG2Mw/exec";
+    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে বসান
+    const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxNVwry7WyKNH3BGKHPS1U2Ylt5aeE6Odz0sc_-41dLca4oII6tJUqLhNNSuIwDTFGcZg/exec";
+    
+    // 👈 ২. অ্যাপের গোপন পাসওয়ার্ডটি এখানে সেট করুন (গিটহাব থেকেই পরিবর্তনযোগ্য)
+    const APP_SECRET_PASSWORD = "ppp321"; 
 
     let globalData = null;
     let activeSection1Card = null;
@@ -219,7 +222,7 @@
       checkSession();
     });
 
-    // ১৫ মিনিটের টাইমআউট সেশন চেক লজিক
+    // ১৫ মিনিটের সেশন ভেরিফিকেশন
     function checkSession() {
       const loginTime = localStorage.getItem('primerLoginTime');
       if (loginTime) {
@@ -227,7 +230,8 @@
         const fifteenMinutes = 15 * 60 * 1000;
         
         if (now - loginTime < fifteenMinutes) {
-          showDashboard();
+          // সেশন ঠিক থাকলে সরাসরি ডেটা ফেচ মোডে চলে যাও
+          fetchLiveDashboardData();
         } else {
           localStorage.removeItem('primerLoginTime');
           hideDashboard();
@@ -237,7 +241,7 @@
       }
     }
 
-    // লগইন রিকোয়েস্ট প্রসেস ও নিরাপত্তা হ্যান্ডলিং
+    // ফ্রন্টএন্ড পাসওয়ার্ড ভেরিফিকেশন লজিক
     function handleLogin() {
       const passwordInput = document.getElementById('appPassword');
       const loginError = document.getElementById('loginError');
@@ -250,35 +254,40 @@
         return;
       }
 
-      loginError.classList.add('hidden');
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> যাচাই করা হচ্ছে...';
+      // কাস্টম অ্যাপ পাসওয়ার্ড মিললো কিনা চেক
+      if (password !== APP_SECRET_PASSWORD) {
+        loginError.innerText = 'ভুল পাসওয়ার্ড! দয়া করে সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন।';
+        loginError.classList.remove('hidden');
+        return;
+      }
 
-      // GitHub থেকে গুগল অ্যাপস স্ক্রিপ্ট POST API-তে রিকোয়েস্ট পাঠানো
-      fetch(GOOGLE_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ password: password })
-      })
+      // সঠিক পাসওয়ার্ড হলে লোকাল সেশন চালু করো এবং ডেটা আনো
+      loginError.classList.add('hidden');
+      localStorage.setItem('primerLoginTime', new Date().getTime());
+      fetchLiveDashboardData();
+    }
+
+    // এপিআই থেকে সরাসরি লাইভ ডেটা তুলে আনা
+    function fetchLiveDashboardData() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('globalLoader').classList.remove('hidden');
+
+      fetch(GOOGLE_WEB_APP_URL)
       .then(response => response.json())
       .then(response => {
+        document.getElementById('globalLoader').classList.add('hidden');
         if (response.success) {
-          localStorage.setItem('primerLoginTime', new Date().getTime());
           globalData = response;
           showDashboard();
         } else {
-          loginError.innerText = response.message;
-          loginError.classList.remove('hidden');
-          loginBtn.disabled = false;
-          loginBtn.innerText = 'প্রবেশ করুন';
+          alert('ডেটা লোড করতে ব্যর্থ: ' + response.message);
+          hideDashboard();
         }
       })
       .catch(() => {
-        loginError.innerText = 'নেটওয়ার্ক সমস্যা অথবা ভুল এপিআই লিঙ্ক! আবার চেষ্টা করুন।';
-        loginError.classList.remove('hidden');
-        loginBtn.disabled = false;
-        loginBtn.innerText = 'প্রবেশ করুন';
+        document.getElementById('globalLoader').classList.add('hidden');
+        alert('সার্ভার কানেকশন ত্রুটি! গুগল এপিআই লিঙ্কটি চেক করুন অথবা পেজটি রিফ্রেশ করুন।');
+        hideDashboard();
       });
     }
 
@@ -286,40 +295,25 @@
       document.getElementById('loginSection').classList.remove('hidden');
       document.getElementById('dashboardBody').classList.add('hidden');
       document.getElementById('globalLoader').classList.add('hidden');
+      document.getElementById('liveTimestamp').innerText = "সর্বশেষ আপডেট: লকড 🔒";
     }
 
-    // সফল লগইনের পর ড্যাশবোর্ড সাজানো
     function showDashboard() {
-      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('dashboardBody').classList.remove('hidden');
+      document.getElementById('liveTimestamp').innerText = globalData.timestamp;
       
-      if (globalData) {
-        // ডেটা অলরেডি মেমোরিতে ক্যাশ থাকলে সরাসরি প্রদর্শন
-        document.getElementById('globalLoader').classList.add('hidden');
-        document.getElementById('dashboardBody').classList.remove('hidden');
-        
-        document.getElementById('liveTimestamp').innerText = globalData.timestamp;
-        
-        const lblCurrents = document.getElementsByClassName('lblCurrentMonth');
-        for(let el of lblCurrents) el.innerText = globalData.currentMonthName;
-        const lblPrevs = document.getElementsByClassName('lblPrevMonth');
-        for(let el of lblPrevs) el.innerText = globalData.prevMonthName;
+      const lblCurrents = document.getElementsByClassName('lblCurrentMonth');
+      for(let el of lblCurrents) el.innerText = globalData.currentMonthName;
+      const lblPrevs = document.getElementsByClassName('lblPrevMonth');
+      for(let el of lblPrevs) el.innerText = globalData.prevMonthName;
 
-        calculateStatistics();
-        generateSec3HscButtons();
-      } else {
-        // ব্যাকগ্রাউন্ডে সেশন চালু থাকলে ডাইরেক্ট ফেচ মেকানিজম (পাসওয়ার্ড রিকল)
-        document.getElementById('globalLoader').classList.remove('hidden');
-        // ইউজারকে ডাবল লগইন থেকে বাঁচাতে এপিআই ট্র্রিগার (যদি অলরেডি ভেরিফাইড মেমোরি থাকে)
-        hideDashboard();
-        localStorage.removeItem('primerLoginTime'); // ফ্রন্টএন্ড ফোর্সড রি-লগইন প্রোটেকশন
-      }
+      calculateStatistics();
+      generateSec3HscButtons();
     }
 
-    // ১ম ও ২য় সেকশনের স্ট্যাটিসটিক্স কাউন্টিং লজিক
     function calculateStatistics() {
       const students = globalData.students;
       
-      // ১ম ভাগ: ভর্তি ফি ট্র্যাকিং লজিক (X ও ফাকা বাদ)
       const totalStudentsList = students.filter(s => s.vortiFee !== 'X' && s.vortiFee !== '');
       const totalCount = totalStudentsList.length;
       
@@ -336,7 +330,6 @@
       document.getElementById('countVortiUnpaid').innerText = vortiUnpaidList.length;
       document.getElementById('pctVortiUnpaid').innerText = `(${uPct}%)`;
 
-      // ২য় ভাগ: মাসিক বেতন ট্র্যাকিং লজিক
       const currentValidList = students.filter(s => s.currentMonthStatus !== 'X');
       const mPaidList = currentValidList.filter(s => s.currentMonthStatus === 'P' || (!isNaN(s.currentMonthStatus) && s.currentMonthStatus !== ''));
       const mUnpaidList = currentValidList.filter(s => s.currentMonthStatus === 'U' || s.currentMonthStatus === '');
@@ -358,7 +351,7 @@
     }
 
     // ==========================================
-    // 🟩 সেকশন ১: অন/অফ এবং ট্রিপল-লেয়ার ফিল্টার
+    // সেকশন ১ ট্রিপল লেয়ার লজিক
     // ==========================================
     function toggleMainCard(cardType) {
       if (activeSection1Card === cardType) {
@@ -386,7 +379,6 @@
         list = list.filter(s => s.vortiFee === 'U');
       }
 
-      // এইচএসসি বাটন রেন্ডারিং
       const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
       const hscWrapper = document.getElementById('optFilterHsc1');
       hscWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
@@ -403,7 +395,6 @@
         hscWrapper.appendChild(btn);
       });
 
-      // অপশনাল ব্যাচ বাটন লেয়ার
       const batchWrapper = document.getElementById('optFilterBatch1');
       if (sec1SelectedHsc) {
         batchWrapper.classList.remove('hidden');
@@ -432,7 +423,7 @@
     }
 
     // ==========================================
-    // 🟨 সেকশন ২: বেতন কার্ড অন/অফ ফিল্টার লজিক
+    // সেকশন ২ লজিক
     // ==========================================
     function toggleMonthCard(cardType) {
       if (activeSection2Card === cardType) {
@@ -502,12 +493,12 @@
       if (sec2SelectedHsc) list = list.filter(s => s.hsc === sec2SelectedHsc);
       if (sec2SelectedBatch) list = list.filter(s => s.batch === sec2SelectedBatch);
 
-      const limitedHeaders = globalData.headers.slice(0, 5); // ১ম ৫টি কলাম
+      const limitedHeaders = globalData.headers.slice(0, 5); 
       buildTable(document.getElementById('tableWrapper2'), limitedHeaders, list, false);
     }
 
     // ==========================================
-    // 🟦 সেকশন ৩: বাটন নির্ভর তথ্য তালিকা ডিরেক্টরি
+    // সেকশন ৩ ডিরেক্টরি লজিক
     // ==========================================
     function generateSec3HscButtons() {
       const list = globalData.students;
@@ -573,7 +564,7 @@
     }
 
     // ==========================================
-    // 🛠️ ডাইনামিক টেবিল রেন্ডারিং ও ডায়াল প্যাড লজিক
+    // ছক মেকার ও ডায়াল প্যাড ইঞ্জিন (tel:)
     // ==========================================
     function buildTable(targetContainer, headers, list, showAllColumns = false, isSection3 = false) {
       if (list.length === 0) {
@@ -629,18 +620,16 @@
       targetContainer.innerHTML = html;
     }
 
-    // 📞 গ্লোবাল মোবাইল নাম্বার ক্লিকেবল ডায়াল প্যাড লিংক মেকার (tel:)
     function formatPhoneLink(phone) {
       if (!phone) return '<span class="text-gray-300">—</span>';
-      const cleanPhone = phone.replace(/[^0-8]/g, ''); // শুধু নাম্বার অংশটুকু ফিল্টার (স্পেস বা হাইফেন পরিষ্কার)
+      const cleanPhone = phone.replace(/[^0-9]/g, ''); // স্পেস বা হাইফেন পরিষ্কার
       return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline decoration-blue-400 hover:text-blue-800 transition bg-blue-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${phone}</a>`;
     }
 
-    // 💵 পেমেন্ট ক্যারেক্টার এবং ভিজ্যুয়াল ক্যাপসুল ব্যাজ ফরম্যাটার
     function formatPaymentStatus(val) {
       const cleanVal = String(val).trim();
       if (cleanVal === 'P') return '<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm">পেইড</span>';
-      if (cleanVal === 'U') return '<span class="px-2.5 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-full shadow-sm">আনpেইড</span>';
+      if (cleanVal === 'U') return '<span class="px-2.5 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-full shadow-sm">আনপেইড</span>';
       if (cleanVal === 'X') return '<span class="px-2.5 py-0.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-full shadow-sm">বাদ</span>';
       if (!isNaN(cleanVal) && cleanVal !== '') {
         return `<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm"><i class="fa-solid fa-circle-check text-[10px]"></i> পেইড (${cleanVal})</span>`;
