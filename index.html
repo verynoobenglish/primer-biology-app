@@ -23,10 +23,10 @@
         .section-title { font-size: 18px; color: #005f56; font-weight: bold; border-left: 4px solid #00897b; padding-left: 10px; margin-bottom: 15px; }
         .stats-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
         
-        .stat-card { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); text-align: center; min-width: 230px; flex: 1; transition: transform 0.2s; position: relative; overflow: hidden; }
+        .stat-card { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); text-align: center; min-width: 220px; flex: 1; transition: transform 0.2s; position: relative; overflow: hidden; }
         .stat-card:hover { transform: translateY(-2px); }
         .stat-card h3 { font-size: 14px; color: #718096; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-        .stat-card p { font-size: 32px; font-weight: bold; color: #1a202c; }
+        .stat-card p { font-size: 26px; font-weight: bold; color: #1a202c; margin-top: 5px; }
         
         /* Border accents for stats */
         .stat-total { border-top: 4px solid #3182ce; }
@@ -37,7 +37,7 @@
         /* View Controls / Buttons */
         .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 5px; }
         .btn { background: #00897b; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: all 0.2s; }
-        .btn:hover { background: #005f56; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.12); }
+        .btn:hover { background: #005f56; transform: translateY(-1px); box-shadow: 0 4px 4px rgba(0,0,0,0.12); }
         .btn-secondary { background: #4a5568; }
         .btn-secondary:hover { background: #2d3748; }
         
@@ -71,9 +71,11 @@
         
         /* Badges styling */
         .badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; display: inline-block; text-align: center; text-transform: uppercase; }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; text-align: center; }
         .status-badge.unpaid { background: #fed7d7; color: #9b2c2c; }
         .status-badge.paid { background: #c6f6d5; color: #22543d; }
+        .status-badge.month-badge { background: #e2e8f0; color: #4a5568; font-weight: 500; }
+        .status-badge.month-paid { background: #e9d8fd; color: #553c9a; font-weight: bold; }
         
         .hidden { display: none; }
     </style>
@@ -83,7 +85,7 @@
     <div class="main-layout">
         <header>
             <h1>প্রাইমার বায়োলজি (Primer Biology)</h1>
-            <div class="subtitle">শিক্ষক ও office সহকারী ম্যানেজমেন্ট ড্যাশবোর্ড</div>
+            <div class="subtitle">শিক্ষক ও অফিস সহকারী ডাইনামিক ড্যাশবোর্ড</div>
             <div id="loader">গুগল শীট থেকে লাইভ তথ্য লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন...</div>
         </header>
 
@@ -102,11 +104,11 @@
                     <h3>ভর্তি বাকি (Unpaid)</h3>
                     <p id="total-admission-unpaid">০ জন</p>
                 </div>
-                <div class="stat-card stat-month">
-                    <h3>চলতি মাসের ফি পরিশোধ</h3>
-                    <p id="total-month-paid">০%</p>
-                </div>
             </div>
+            
+            <div class="section-title" style="margin-top: 25px;">চলতি ও পূর্ববর্তী মাসের ফি ট্র্যাকিং</div>
+            <div class="stats-container" id="dynamic-months-container">
+                </div>
 
             <div class="section-title" style="margin-top: 35px;">এইচএসসি ব্যাচ অনুযায়ী তালিকা</div>
             <div class="controls" style="justify-content: flex-start;">
@@ -140,19 +142,46 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbyj9zxwfoaCmhEw4fOG3F_CvRX7xz39W8ThFKiNNjsoKMh_6b-r4Oii_5k2Wpw2gUkBMw/exec";
 
         let globalData = [];
+        let currentMonthName = "";
+        let prevMonthName = "";
+
+        // ১. বর্তমান তারিখ অনুযায়ী বাংলা মাসের নাম জেনারেট করার ডাইনামিক ফাংশন
+        function detectTargetMonths() {
+            const monthsBn = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+            const now = new Date();
+            
+            const currentIdx = now.getMonth(); 
+            const currentYear = now.getFullYear();
+            
+            // চলতি মাসের ফরম্যাট (যেমন: মে-২০২৬)
+            currentMonthName = `${monthsBn[currentIdx]}-${currentYear}`;
+            
+            // পূর্ববর্তী মাসের হিসাব
+            let prevIdx = currentIdx - 1;
+            let prevYear = currentYear;
+            if (prevIdx < 0) {
+                prevIdx = 11;
+                prevYear = currentYear - 1;
+            }
+            prevMonthName = `${monthsBn[prevIdx]}-${prevYear}`;
+            
+            console.log("Detected Months:", currentMonthName, "and", prevMonthName);
+        }
 
         // Fetch data from Google Sheet API
         async function loadSheetData() {
             try {
+                detectTargetMonths(); // মাস দুটি আগে ডিটেক্ট করে নেওয়া হলো
+                
                 const response = await fetch(API_URL);
                 const rawData = await response.json();
                 
-                // 🚀 ম্যাজিক ফিল্টার: এখানে "মন্তব্য" কলামে Inactive স্টুডেন্টদের শুরুতেই বাদ দেওয়া হচ্ছে
+                // ফিল্টার: "মন্তব্য" কলামে Inactive স্টুডেন্টদের বাদ দেওয়া হচ্ছে
                 globalData = rawData.filter(row => {
                     if (row["মন্তব্য"]) {
                         return String(row["মন্তব্য"]).trim().toLowerCase() !== 'inactive';
                     }
-                    return true; // মন্তব্য কলাম খালি থাকলে বা Active থাকলে কাউন্ট হবে
+                    return true;
                 });
 
                 document.getElementById('loader').style.display = 'none';
@@ -164,44 +193,56 @@
         }
 
         function calculateDashboardStats() {
-            // ১. মোট এক্টিভ শিক্ষার্থী
             const total = globalData.length;
             
-            // ২. ভর্তি সম্পন্ন (Paid)
+            // ভর্তি সম্পন্ন (Paid)
             const admissionPaid = globalData.filter(row => {
                 return row["ভর্তি ফি"] && String(row["ভর্তি ফি"]).trim().toLowerCase() === 'paid';
             }).length;
             
-            // ৩. ভর্তি হয়নি (Unpaid)
+            // ভর্তি বাকি (Unpaid)
             const admissionUnpaid = globalData.filter(row => {
                 const hasBatch = row["ব্যাচ"] && String(row["ব্যাচ"]).trim() !== "";
                 const hasDate = row["প্রথম ক্লাসের তারিখ"] && String(row["প্রথম ক্লাসের তারিখ"]).trim() !== "";
                 const isUnpaid = row["ভর্তি ফি"] && String(row["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
                 return hasBatch && hasDate && isUnpaid;
             }).length;
-            
-            // ৪. চলতি মাসের বেতন ট্র্যাকিং (উদাহরণ কলাম: "মে-২০২৬")
-            const currentMonthKey = "মে-২০২৬"; 
-            let monthPaidCount = 0;
-            globalData.forEach(row => {
-                if(row[currentMonthKey] && String(row[currentMonthKey]).trim().toLowerCase() === 'paid') {
-                    monthPaidCount++;
-                }
-            });
-            const monthPaidPercentage = total > 0 ? Math.round((monthPaidCount / total) * 100) : 0;
 
-            // ড্যাশবোর্ডে ডাটা প্রদর্শন
+            // ড্যাশবোর্ডের বেসিক তথ্য আপডেট
             document.getElementById('total-students').innerText = total + " জন";
             document.getElementById('total-admission-paid').innerText = admissionPaid + " জন";
             document.getElementById('total-admission-unpaid').innerText = admissionUnpaid + " জন";
-            document.getElementById('total-month-paid').innerText = monthPaidPercentage + "% (" + monthPaidCount + " জন)";
+
+            // 🚀 ডাইনামিকালি চলতি ও পূর্ববর্তী মাসের পার্সেন্টেজ হিসাব ও কার্ড তৈরি
+            const targetMonths = [currentMonthName, prevMonthName];
+            const monthsContainer = document.getElementById('dynamic-months-container');
+            monthsContainer.innerHTML = ""; // আগের ডাটা পরিষ্কার
+
+            targetMonths.forEach((monthKey, idx) => {
+                let paidCount = 0;
+                globalData.forEach(row => {
+                    if (row[monthKey] && String(row[monthKey]).trim().toLowerCase() === 'paid') {
+                        paidCount++;
+                    }
+                });
+                
+                const percentage = total > 0 ? Math.round((paidCount / total) * 100) : 0;
+                const titleLabel = idx === 0 ? `চলতি মাস (${monthKey})` : `পূর্ববর্তী মাস (${monthKey})`;
+                
+                const card = document.createElement('div');
+                card.className = "stat-card stat-month";
+                card.innerHTML = `
+                    <h3>${titleLabel}</h3>
+                    <p style="color: #6b46c1;">${percentage}% <span style="font-size:16px; font-weight:normal; color:#4a5568;">(${paidCount} জন পরিশোধিত)</span></p>
+                `;
+                monthsContainer.appendChild(card);
+            });
         }
 
         function showHscBatches(hscYear) {
             document.getElementById('batches-display-section').classList.remove('hidden');
             document.getElementById('selected-hsc-title').innerText = "📌 " + hscYear + " এর ব্যাচসমূহ:";
             
-            // এই HSC বছরের সব এক্টিভ ছাত্র ফিল্টার করা হচ্ছে
             const hscStudents = globalData.filter(row => row["এইচ এস সি"] && String(row["এইচ এস সি"]).trim() === hscYear);
             
             const batchesMap = {};
@@ -215,9 +256,10 @@
                 }
                 batchesMap[key].total++;
                 
-                const hasDate = student["প্রথম ক্লাসের তারিখ"] && String(student["প্রথম ক্লাসের তারিখ"]).trim() !== "";
+                const hasDate = student["first ক্লাসের তারিখ"] || student["প্রথম ক্লাসের তারিখ"];
+                const hasDateStr = hasDate && String(hasDate).trim() !== "";
                 const isUnpaid = student["ভর্তি ফি"] && String(student["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
-                if(hasDate && isUnpaid) {
+                if(hasDateStr && isUnpaid) {
                     batchesMap[key].unpaidAdmission++;
                 }
             });
@@ -255,28 +297,26 @@
                 row["সময়"] && String(row["সময়"]).trim() === batchTime
             );
 
-            // Unpaid ছাত্ররা তালিকায় উপরে থাকবে
+            // Sorting: Unpaid ছাত্ররা উপরে থাকবে
             students.sort((a, b) => {
-                let aPaid = (a["ভর্তি ফি"] && String(a["ভর্তি ft"]).toLowerCase() === 'paid') ? 1 : 0; // typo fixed to 'ভর্তি ফি' below
-                let aPaidCorrect = (a["ভর্তি ফি"] && String(a["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
-                let bPaidCorrect = (b["ভর্তি ফি"] && String(b["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
-                return aPaidCorrect - bPaidCorrect;
+                let aPaid = (a["ভর্তি ফি"] && String(a["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
+                let bPaid = (b["ভর্তি ফি"] && String(b["ভর্তি ফি"]).toLowerCase() === 'paid') ? 1 : 0;
+                return aPaid - bPaid;
             });
 
             const total = students.length;
             const paidCount = students.filter(s => s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).toLowerCase() === 'paid').length;
-            const unpaidCount = students.filter(s => {
-                return s["প্রথম ক্লাসের তারিখ"] && String(s["প্রথম ক্লাসের তারিখ"]).trim() !== "" && s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).toLowerCase() === 'unpaid';
-            }).length;
+            const unpaidCount = total - paidCount;
 
-            document.getElementById('batch-stats').innerText = `মোট: ${total} জন | ভর্তি সম্পন্ন: ${paidCount} জন | বকেয়া ভর্তি: ${unpaidCount} জন`;
+            document.getElementById('batch-stats').innerText = `মোট: ${total} জন | ভর্তি সম্পন্ন: ${paidCount} জন | বাকি: ${unpaidCount} জন`;
 
             const listContainer = document.getElementById('students-list-container');
             listContainer.innerHTML = "";
 
             students.forEach(s => {
                 const isPaid = s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).trim().toLowerCase() === 'paid';
-                const isUnpaidTarget = s["প্রথম ক্লাসের তারিখ"] && String(s["প্রথম ক্লাসের তারিখ"]).trim() !== "" && s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
+                const hasDate = s["প্রথম ক্লাসের তারিখ"] && String(s["প্রথম ক্লাসের তারিখ"]).trim() !== "";
+                const isUnpaidTarget = hasDate && s["ভর্তি ফি"] && String(s["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
                 
                 const row = document.createElement('div');
                 if (isPaid) {
@@ -287,8 +327,12 @@
                     row.className = 'student-row';
                 }
                 
-                const currentMonthValue = s["মে-২০২৬"] ? String(s["মে-২০২৬"]).trim() : 'Unpaid';
-                const isMonthPaid = currentMonthValue.toLowerCase() === 'paid';
+                // ডাইনামিক মাসের পেমেন্ট ব্যাজ (মেডিকেল/শিক্ষক ভিউ)
+                const currentVal = s[currentMonthName] ? String(s[currentMonthName]).trim() : 'Unpaid';
+                const prevVal = s[prevMonthName] ? String(s[prevMonthName]).trim() : 'Unpaid';
+                
+                const isCurrentPaid = currentVal.toLowerCase() === 'paid';
+                const isPrevPaid = prevVal.toLowerCase() === 'paid';
                 
                 row.innerHTML = `
                     <div class="student-info">
@@ -303,8 +347,11 @@
                         <span class="status-badge ${isPaid ? 'paid' : 'unpaid'}">
                             ভর্তি: ${isPaid ? 'Paid' : 'Unpaid'}
                         </span>
-                        <span class="status-badge ${isMonthPaid ? 'paid' : 'unpaid'}">
-                            মে মাস: ${currentMonthValue}
+                        <span class="status-badge ${isCurrentPaid ? 'month-paid' : 'unpaid'}">
+                            ${currentMonthName}: ${isCurrentPaid ? 'Paid' : 'Unpaid'}
+                        </span>
+                        <span class="status-badge ${isPrevPaid ? 'month-paid' : 'unpaid'}">
+                            ${prevMonthName}: ${isPrevPaid ? 'Paid' : 'Unpaid'}
                         </span>
                     </div>
                 `;
