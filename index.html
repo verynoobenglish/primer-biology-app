@@ -3,87 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>প্রাইমার বায়োলজি - শিক্ষক ও অফিস ড্যাশবোর্ড</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f4f8; color: #2d3748; padding: 20px; }
-        
-        /* Header Styling */
-        header { text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #005f56 0%, #00897b 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
-        h1 { font-size: 26px; letter-spacing: 0.5px; }
-        .subtitle { font-size: 14px; opacity: 0.9; margin-top: 5px; font-weight: 300; }
-        
-        /* Loader */
-        #loader { text-align: center; font-size: 16px; color: white; margin-top: 15px; font-weight: bold; background: rgba(0,0,0,0.15); padding: 8px 15px; border-radius: 20px; display: inline-block; }
-        
-        /* Layout Container */
-        .main-layout { display: flex; flex-direction: column; gap: 25px; max-width: 1200px; margin: 0 auto; }
-        
-        /* Stats Dashboard Section */
-        .section-title { font-size: 18px; color: #005f56; font-weight: bold; border-left: 4px solid #00897b; padding-left: 10px; margin-bottom: 15px; }
-        .stats-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        
-        .stat-card { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); text-align: center; min-width: 220px; flex: 1; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .stat-card:hover { transform: translateY(-2px); }
-        .stat-card h3 { font-size: 14px; color: #718096; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-        .stat-card p { font-size: 26px; font-weight: bold; color: #1a202c; margin-top: 5px; }
-        
-        /* Border accents */
-        .stat-total { border-top: 4px solid #3182ce; }
-        .stat-paid { border-top: 4px solid #38a169; }
-        .stat-unpaid { border-top: 4px solid #e53e3e; }
-        .stat-month { border-top: 4px solid #805ad5; }
-        
-        /* Controls */
-        .controls { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 5px; }
-        .btn { background: #00897b; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: all 0.2s; }
-        .btn:hover { background: #005f56; transform: translateY(-1px); box-shadow: 0 4px 4px rgba(0,0,0,0.12); }
-        .btn-secondary { background: #4a5568; }
-        .btn-secondary:hover { background: #2d3748; }
-        
-        /* Batch Grid */
-        .batch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 5px; }
-        .batch-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); cursor: pointer; border-left: 6px solid #3182ce; transition: all 0.2s; }
-        .batch-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
-        .batch-card h4 { color: #1a202c; font-size: 17px; margin-bottom: 8px; }
-        .batch-card p { font-size: 14px; color: #4a5568; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
-
-        /* Student List */
-        .list-container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .list-header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 15px; }
-        @media(min-width: 768px) {
-            .list-header { flex-direction: row; justify-content: space-between; align-items: center; }
-        }
-        
-        .student-row { display: flex; flex-direction: column; padding: 18px; border-bottom: 1px solid #edf2f7; background: #fff; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.15s; }
-        .student-row:hover { background: #f8fafc; }
-        .student-row.unpaid-row { border-left: 6px solid #e53e3e; background: #fffafb; }
-        .student-row.paid-row { border-left: 6px solid #38a169; }
-        
-        .student-info { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 12px; flex-grow: 1; }
-        @media(min-width: 768px) {
-            .student-info { grid-template-columns: 1.2fr 1.2fr 1fr; margin-bottom: 0; }
-            .student-row { flex-direction: row; justify-content: space-between; align-items: center; gap: 20px; }
-        }
-        
-        .student-name { font-weight: bold; font-size: 16px; color: #1a202c; }
-        .student-meta { font-size: 14px; color: #4a5568; }
-        
-        /* Badges */
-        .badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; text-align: center; }
-        .status-badge.unpaid { background: #fed7d7; color: #9b2c2c; }
-        .status-badge.paid { background: #c6f6d5; color: #22543d; }
-        .status-badge.month-badge { background: #e2e8f0; color: #4a5568; font-weight: 500; }
-        .status-badge.month-paid { background: #e9d8fd; color: #553c9a; font-weight: bold; }
-        
-        .hidden { display: none; }
-    </style>
+    <title>প্রাতিষ্ঠানিক কাজের ড্যাশবোর্ড</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="main-layout">
-        <header>
-            <h1>প্রাইমার বায়োলজি (Primer Biology)</h1>
-            <div class="subtitle">শিক্ষক ও অফিস সহকারী ডাইনামিক ড্যাশবোর্ড</div>
-            <div id="loader">গুগল শীট থেকে লাইভ তথ্য লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন...</div>
+    <!-- হেডার বা শিরোনাম অংশ -->
+    <header>
+        <h1>কাজের প্যানেল ও ড্যাশবোর্ড</h1>
+        <p>ব্যক্তিগত প্রাতিষ্ঠানিক ব্যবহারের জন্য</p>
+    </header>
+
+    <!-- মূল কন্টেন্ট এরিয়া -->
+    <main class="container">
+        
+        <!-- সেকশন ১: তথ্য বা কন্টেন্ট টেবিল -->
+        <section class="card">
+            <h2>নমুনা কন্টেন্ট বা প্রশ্ন তালিকা</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>টপিক / বিষয়</th>
+                        <th>স্ট্যাটাস</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>০১</td>
+                        <td>অধ্যায় ০১: কোষ ও এর গঠন</td>
+                        <td><span class="badge সম্পন্ন">সম্পন্ন</span></td>
+                    </tr>
+                    <tr>
+                        <td>০২</td>
+                        <td>অধ্যায় ০২: কোষ বিভাজন</td>
+                        <td><span class="badge বাকি">চলমান</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- সেকশন ২: তথ্য ইনপুট দেওয়ার ফর্ম (কাজ চলার মতো) -->
+        <section class="card">
+            <h2>নতুন তথ্য যুক্তকরণ ফর্ম</h2>
+            <form>
+                <div class="form-group">
+                    <label for="topic">টপিকের নাম:</label>
+                    <input type="text" id="topic" placeholder="এখানে লিখুন...">
+                </div>
+                <div class="form-group">
+                    <label for="note">গুরুত্বপূর্ণ নোট বা মন্তব্য:</label>
+                    <textarea id="note" rows="4" placeholder="মন্তব্য লিখুন..."></textarea>
+                </div>
+                <button type="button" class="btn">সংরক্ষণ করুন (খসড়া)</button>
+            </form>
+        </section>
+
+    </main>
+
+</body>
+</html>
