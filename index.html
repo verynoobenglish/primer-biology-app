@@ -3,207 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>প্রাইমার বায়োলজি — লাইভ ডাটাবেজ</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- FontAwesome Icon CDN -->
+  <title>কোচিং ম্যানেজমেন্ট ড্যাশবোর্ড</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
-    body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
-    .active-card { border-color: #2563eb !important; background-color: #eff6ff !important; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1); }
-    .active-btn { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
-    .table-container { max-height: 450px; overflow-y: auto; overflow-x: auto; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+    }
+    /* সক্রিয় কার্ড ও বাটনের কাস্টম স্টাইল */
+    .active-card {
+      border-color: #2563eb !important;
+      background-color: #f0fdf4 !important; /* হালকা সবুজ আভা */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transform: scale(1.02);
+    }
+    .active-btn {
+      background-color: #2563eb !important;
+      border-color: #2563eb !important;
+      color: white !important;
+    }
   </style>
 </head>
-<body class="antialiased text-gray-800">
+<body class="bg-slate-100 min-h-screen text-gray-800">
 
-  <!-- ==========================================
-       ১. পেজের স্থায়ী শীর্ষভাগ (The Header)
-       ========================================== -->
-  <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-md sticky top-0 z-50 px-4 py-3.5">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-      <div class="text-center sm:text-left">
-        <h1 class="text-2xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-2">
-          <i class="fa-solid fa-dna animate-pulse"></i> প্রাইমার বায়োলজি
-        </h1>
-        <p class="text-xs text-blue-200 font-medium mt-0.5">অফিসিয়াল স্টুডেন্ট লাইভ ডাটাবেজ প্যানেল</p>
-      </div>
-      <div id="liveTimestamp" class="text-xs sm:text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 font-semibold shadow-inner">
-        সর্বশেষ আপডেট: লকড 🔒
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
-
-    <!-- ==========================================
-         🔒 অবস্থা ১: লকড বডি (লগইন স্ক্রিন)
-         ========================================== -->
-    <section id="loginSection" class="max-w-md mx-auto mt-12 md:mt-20 bg-white rounded-2xl shadow-xl p-6 border border-gray-100 transition-all duration-300">
+  <div id="loginSection" class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
       <div class="text-center mb-6">
-        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner mb-3">
-          <i class="fa-solid fa-shield-halved"></i>
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-lock text-blue-600 text-2xl"></i>
         </div>
-        <h2 class="text-xl font-bold text-gray-900">অ্যাডমিন অ্যাক্সেস ভেরিফিকেশন</h2>
-        <p class="text-xs text-gray-500 mt-1">তথ্য সুরক্ষার জন্য প্যানেল পাসওয়ার্ডটি প্রদান করুন</p>
+        <h2 class="text-2xl font-bold text-gray-800">অ্যাডমিন প্যানেল লগইন</h2>
+        <p class="text-gray-500 text-sm mt-1">প্যানেলে প্রবেশ করতে সঠিক পাসওয়ার্ড দিন</p>
       </div>
-      
       <div class="space-y-4">
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-            <i class="fa-solid fa-lock"></i>
-          </span>
-          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" 
-                 class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium transition text-sm">
-        </div>
-        <p id="loginError" class="text-xs text-red-600 font-semibold hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></p>
-        <button onclick="handleLogin()" id="loginBtn" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md shadow-blue-200 hover:shadow-none transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer text-sm">
-          প্রবেশ করুন <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+        <input type="password" id="appPassword" placeholder="পাসওয়ার্ড লিখুন..." 
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans text-center text-lg">
+        <button onclick="handleLogin()" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all cursor-pointer">
+          প্রবেশ করুন <i class="fa-solid fa-arrow-right-to-bracket ml-1"></i>
         </button>
+        <p id="loginError" class="text-red-500 font-bold text-sm text-center hidden"></p>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- 🔄 গ্লোবাল লোডার প্যানেল -->
-    <div id="globalLoader" class="hidden text-center py-16">
-      <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent shadow-sm mb-4"></div>
-      <p class="text-gray-600 font-semibold text-sm">গুগল শিট থেকে লাইভ তথ্য প্রসেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+  <div id="globalLoader" class="hidden flex flex-col items-center justify-center min-h-screen bg-slate-100/80 fixed inset-0 z-50">
+    <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-600 border-t-transparent mb-4"></div>
+    <p class="text-gray-700 font-bold text-lg animate-pulse">গুগল শিট থেকে লাইভ তথ্য লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+  </div>
+
+  <div id="dashboardBody" class="hidden max-w-7xl mx-auto px-4 py-6 space-y-8">
+    
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-chart-line text-blue-600"></i> স্মার্ট কোচিং ড্যাশবোর্ড
+        </h1>
+        <p class="text-gray-500 text-sm mt-1">রিয়েল-টাইম শিক্ষার্থী ও টিউশন ট্র্যাকিং সিস্টেম</p>
+      </div>
+      <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs md:text-sm font-bold text-slate-600 flex items-center gap-2 self-start md:self-auto">
+        <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> 
+        সর্বশেষ আপডেট: <span id="liveTimestamp" class="font-sans text-blue-700">Loading...</span>
+      </div>
     </div>
 
-    <!-- ==========================================
-         🔓 অবস্থা ২: আনলকড বডি (মূল ড্যাশবোর্ড)
-         ========================================== -->
-    <div id="dashboardBody" class="hidden space-y-8 md:space-y-12 transition-all duration-500">
-      
-      <!-- 🟩 বডি সেকশন: ১ম ভাগ — মোট শিক্ষার্থী এবং ভর্তি -->
-      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
-        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
-          <span class="text-emerald-600 bg-emerald-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-user-graduate"></i></span>
-          <h3 class="text-base font-bold text-gray-900">ভর্তি ও শিক্ষার্থী পরিসংখ্যান (Admission Metrics)</h3>
-        </div>
-        
-        <!-- মূল ৩টি কার্ড গ্রিড -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div id="cardTotalStudents" onclick="toggleMainCard('total')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">মোট সক্রিয় শিক্ষার্থী</p>
-              <h4 id="countTotal" class="text-2xl font-bold text-slate-800 mt-1">০</h4>
-            </div>
-            <span class="text-slate-400 text-xl"><i class="fa-solid fa-users"></i></span>
+    <div class="space-y-4">
+      <h2 class="text-lg font-bold text-slate-700 flex items-center gap-1.5 px-1">
+        <span class="w-2 h-5 bg-emerald-500 rounded-sm inline-block"></span> ভর্তি ও শিক্ষার্থী পরিসংখ্যান
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="cardTotalStudents" onclick="toggleMainCard('total')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold">মোট সক্রিয় শিক্ষার্থী</p>
+            <h3 id="countTotal" class="text-3xl font-black text-slate-800 mt-1 font-sans">0</h3>
           </div>
-          <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">ভর্তি ফি সম্পন্ন <span id="pctVortiPaid" class="text-emerald-600 text-[10px]"></span></p>
-              <h4 id="countVortiPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
-            </div>
-            <span class="text-emerald-400 text-xl"><i class="fa-solid fa-circle-check"></i></span>
-          </div>
-          <div id="cardVortiUnpaid" onclick="toggleMainCard('vortiUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">ভর্তি ফি বাকি <span id="pctVortiUnpaid" class="text-red-600 text-[10px]"></span></p>
-              <h4 id="countVortiUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
-            </div>
-            <span class="text-red-400 text-xl"><i class="fa-solid fa-circle-exclamation"></i></span>
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-users"></i>
           </div>
         </div>
-
-        <!-- ১ম ভাগের ডাইনামিক ফিল্টার ও ছক কন্টেইনার -->
-        <div id="containerSec1" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
-          <div class="flex flex-wrap gap-4 items-center bg-gray-50 p-3.5 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
-            <div id="optFilterHsc1" class="flex flex-wrap items-center gap-1.5"></div>
-            <div id="optFilterBatch1" class="flex flex-wrap items-center gap-1.5 hidden"></div>
+        <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold">ভর্তি ফি পরিশোধ</p>
+            <h3 id="countVortiPaid" class="text-3xl font-black text-emerald-600 mt-1 font-sans">0</h3>
           </div>
-          <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
-            <div id="tableWrapper1"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 🟨 বডি সেকশন: ২য় ভাগ — বেতন ও বকেয়া -->
-      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
-        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
-          <span class="text-amber-600 bg-amber-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-wallet"></i></span>
-          <h3 class="text-base font-bold text-gray-900">চলতি ও পূর্বের মাসের টিউশন ট্র্যাকিং (Tuition Metrics)</h3>
-        </div>
-
-        <!-- মূল ৩টি কার্ড গ্রিড -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div id="cardMonthPaid" onclick="toggleMonthCard('monthPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblCurrentMonth">চলতি</span> মাসের বেতন পরিশোধ <span id="pctMonthPaid" class="text-emerald-600 text-[10px]"></span></p>
-              <h4 id="countMonthPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
-            </div>
-            <span class="text-emerald-400 text-xl"><i class="fa-solid fa-money-bill-wave"></i></span>
-          </div>
-          <div id="cardMonthUnpaid" onclick="toggleMonthCard('monthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblCurrentMonth">চলতি</span> মাসের বকেয়া <span id="pctMonthUnpaid" class="text-red-600 text-[10px]"></span></p>
-              <h4 id="countMonthUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
-            </div>
-            <span class="text-red-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></span>
-          </div>
-          <div id="cardPrevMonthUnpaid" onclick="toggleMonthCard('prevMonthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
-            <div>
-              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblPrevMonth">পূর্বের</span> মাসের বকেয়া <span id="pctPrevMonthUnpaid" class="text-amber-600 text-[10px]"></span></p>
-              <h4 id="countPrevMonthUnpaid" class="text-2xl font-bold text-amber-600 mt-1">০</h4>
-            </div>
-            <span class="text-amber-400 text-xl"><i class="fa-solid fa-clock-rotate-left"></i></span>
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-circle-check"></i>
           </div>
         </div>
-
-        <!-- ২য় ভাগের ডাইনামিক ফিল্টার ও ছক কন্টেইনার -->
-        <div id="containerSec2" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
-          <div class="flex flex-wrap gap-4 items-center bg-gray-50 p-3.5 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
-            <div id="optFilterHsc2" class="flex flex-wrap items-center gap-1.5"></div>
-            <div id="optFilterBatch2" class="flex flex-wrap items-center gap-1.5 hidden"></div>
+        <div id="cardVortiUnpaid" onclick="toggleMainCard('vortiUnpaid')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold">ভর্তি ফি বাকি</p>
+            <h3 id="countVortiUnpaid" class="text-3xl font-black text-red-600 mt-1 font-sans">0</h3>
           </div>
-          <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
-            <div id="tableWrapper2"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 🟦 বডি সেকশন: ৩য় ভাগ — তথ্য তালিকা (বাটন ফিল্টার ডিরেক্টরি) -->
-      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 mb-10">
-        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
-          <span class="text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-address-book"></i></span>
-          <h3 class="text-base font-bold text-gray-900">তথ্য তালিকা (Search Filter Directory)</h3>
-        </div>
-
-        <div class="space-y-4">
-          <!--  ধাপ ১: এইচএসসি ফিল্টার বাটন সারি -->
-          <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i>  ধাপ ১: এইচএসসি (HSC) শিক্ষাবর্ষ নির্বাচন করুন</p>
-            <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
-          </div>
-
-          <!--  ধাপ ২: ব্যাচ ফিল্টার বাটন সারি -->
-          <div id="sec3BatchContainer" class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100 hidden">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i>  ধাপ ২: নির্দিষ্ট ব্যাচ নির্বাচন করুন</p>
-            <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
-          </div>
-
-          <!--  ধাপ ৩: চূড়ান্ত ফিক্সড ৩ কলাম টেবিল -->
-          <div id="containerSec3Table" class="hidden pt-4">
-            <p class="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1"><i class="fa-solid fa-table-list"></i> ডিরেক্টরি ফলাফল (নাম, কলেজ ও মোবাইল)</p>
-            <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
-              <div id="tableWrapper3"></div>
-            </div>
+          <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-circle-exclamation"></i>
           </div>
         </div>
-      </section>
+      </div>
 
+      <div id="containerSec1" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4 hidden animate-fadeIn">
+        <div class="flex flex-wrap gap-3 items-center text-sm border-b border-gray-100 pb-4">
+          <div id="optFilterHsc1" class="flex flex-wrap gap-2 items-center"></div>
+          <div id="optFilterBatch1" class="flex flex-wrap gap-2 items-center hidden"></div>
+        </div>
+        <div id="tableWrapper1" class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner"></div>
+      </div>
     </div>
-  </main>
 
-  <!-- ==========================================
-       🧠 জাভাস্ক্রিপ্ট ইঞ্জিন ও কাস্টম ফ্রন্টএন্ড পাসওয়ার্ড লজিক
-       ========================================== -->
-<script>
+    <div class="space-y-4">
+      <h2 class="text-lg font-bold text-slate-700 flex items-center gap-1.5 px-1">
+        <span class="w-2 h-5 bg-amber-500 rounded-sm inline-block"></span> চলতি ও পূর্ব মাসের টিউশন ট্র্যাকিং
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="cardMonthPaid" onclick="toggleMonthCard('monthPaid')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold"><span class="lblCurrentMonth">চলতি মাস</span> বেতন পরিশোধ</p>
+            <h3 id="countMonthPaid" class="text-3xl font-black text-emerald-600 mt-1 font-sans">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-money-bill-wave"></i>
+          </div>
+        </div>
+        <div id="cardMonthUnpaid" onclick="toggleMonthCard('monthUnpaid')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold"><span class="lblCurrentMonth">চলতি মাস</span> বেতন বাকি</p>
+            <h3 id="countMonthUnpaid" class="text-3xl font-black text-red-600 mt-1 font-sans">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+        </div>
+        <div id="cardPrevMonthUnpaid" onclick="toggleMonthCard('prevMonthUnpaid')" 
+             class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer transition hover:shadow-md flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-bold"><span class="lblPrevMonth">পূর্বের মাস</span> বেতন বাকি</p>
+            <h3 id="countPrevMonthUnpaid" class="text-3xl font-black text-rose-700 mt-1 font-sans">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
+            <i class="fa-solid fa-calendar-xmark"></i>
+          </div>
+        </div>
+      </div>
+
+      <div id="containerSec2" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4 hidden">
+        <div class="flex flex-wrap gap-3 items-center text-sm border-b border-gray-100 pb-4">
+          <div id="optFilterHsc2" class="flex flex-wrap gap-2 items-center"></div>
+          <div id="optFilterBatch2" class="flex flex-wrap gap-2 items-center hidden"></div>
+        </div>
+        <div id="tableWrapper2" class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner"></div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="text-lg font-bold text-slate-700 flex items-center gap-1.5 px-1">
+        <span class="w-2 h-5 bg-blue-500 rounded-sm inline-block"></span> শিক্ষার্থী ডিরেক্টরি সার্চ
+      </h2>
+      <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-slate-600 block"><i class="fa-solid fa-graduation-cap text-blue-500"></i> এইচএসসি ব্যাচ নির্বাচন করুন:</label>
+          <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div id="sec3BatchContainer" class="space-y-2 hidden border-t border-dashed border-gray-100 pt-4">
+          <label class="text-sm font-bold text-slate-600 block"><i class="fa-solid fa-layer-group text-purple-500"></i> নির্দিষ্ট কোচিং ব্যাচ নির্বাচন করুন:</label>
+          <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div id="containerSec3Table" class="hidden border-t border-gray-100 pt-4">
+          <div id="tableWrapper3" class="overflow-x-auto rounded-xl border border-gray-100 shadow-inner"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
     // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
@@ -267,7 +247,7 @@
     }
 
     function hideDashboard() {
-      document.getElementById('loginSection').remove('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
       document.getElementById('dashboardBody').classList.add('hidden');
     }
 
@@ -283,7 +263,7 @@
     }
 
     // ==========================================
-    // 📊 নিখুঁত পরিসংখ্যান ও কাউন্টার গণনা ইঞ্জিন
+    // 📊 পরিসংখ্যান ও কাউন্টার গণনা ইঞ্জিন
     // ==========================================
     function calculateStatistics() {
       const s = globalData.students.filter(x => x.name && x.name.trim() !== '');
@@ -513,7 +493,7 @@
     }
 
     // ==========================================
-    // 🖥️ আল্ট্রা-নিরাপদ কাস্টম ছক রেন্ডারিং ইঞ্জিন
+    // 🖥️ কাস্টম ছক রেন্ডারিং ইঞ্জিন
     // ==========================================
     function buildCustomTable(targetContainer, type, list) {
       if (!list || list.length === 0) {
