@@ -1,65 +1,652 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>প্রাতিষ্ঠানিক কাজের ড্যাশবোর্ড</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>প্রাইমার বায়োলজি — লাইভ ডাটাবেজ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- FontAwesome Icon CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+    body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
+    .active-card { border-color: #2563eb !important; background-color: #eff6ff !important; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1); }
+    .active-btn { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+    .table-container { max-height: 450px; overflow-y: auto; overflow-x: auto; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
 </head>
-<body>
+<body class="antialiased text-gray-800">
 
-    <!-- হেডার বা শিরোনাম অংশ -->
-    <header>
-        <h1>কাজের প্যানেল ও ড্যাশবোর্ড</h1>
-        <p>ব্যক্তিগত প্রাতিষ্ঠানিক ব্যবহারের জন্য</p>
-    </header>
+  <!-- ==========================================
+       ১. পেজের স্থায়ী শীর্ষভাগ (The Header)
+       ========================================== -->
+  <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-md sticky top-0 z-50 px-4 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div class="text-center sm:text-left">
+        <h1 class="text-2xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-2">
+          <i class="fa-solid fa-dna animate-pulse"></i> প্রাইমার বায়োলজি
+        </h1>
+        <p class="text-xs text-blue-200 font-medium mt-0.5">অফিসিয়াল স্টুডেন্ট লাইভ ডাটাবেজ প্যানেল</p>
+      </div>
+      <div id="liveTimestamp" class="text-xs sm:text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 font-semibold shadow-inner">
+        সর্বশেষ আপডেট: লোড হচ্ছে...
+      </div>
+    </div>
+  </header>
 
-    <!-- মূল কন্টেন্ট এরিয়া -->
-    <main class="container">
+  <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+
+    <!-- ==========================================
+         🔒 অবস্থা ১: লকড বডি (লগইন স্ক্রিন)
+         ========================================== -->
+    <section id="loginSection" class="max-w-md mx-auto mt-12 md:mt-20 bg-white rounded-2xl shadow-xl p-6 border border-gray-100 transition-all duration-300">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner mb-3">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900">অ্যাডমিন অ্যাক্সেস ভেরিফিকেশন</h2>
+        <p class="text-xs text-gray-500 mt-1">তথ্য সুরক্ষার জন্য প্যানেল পাসওয়ার্ডটি প্রদান করুন</p>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" 
+                 class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium transition text-sm">
+        </div>
+        <p id="loginError" class="text-xs text-red-600 font-semibold hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></p>
+        <button onclick="handleLogin()" id="loginBtn" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md shadow-blue-200 hover:shadow-none transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer text-sm">
+          প্রবেশ করুন <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 🔄 গ্লোবাল লোডার প্যানেল -->
+    <div id="globalLoader" class="hidden text-center py-16">
+      <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent shadow-sm mb-4"></div>
+      <p class="text-gray-600 font-semibold text-sm">সার্ভার থেকে লাইভ তথ্য প্রসেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+    </div>
+
+    <!-- ==========================================
+         🔓 অবস্থা ২: আনলকড বডি (মূল ড্যাশবোর্ড)
+         ========================================== -->
+    <div id="dashboardBody" class="hidden space-y-8 md:space-y-12 transition-all duration-500">
+      
+      <!-- 🟩 বডি সেকশন: ১ম ভাগ — মোট শিক্ষার্থী এবং ভর্তি -->
+      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
+        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
+          <span class="text-emerald-600 bg-emerald-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-user-graduate"></i></span>
+          <h3 class="text-base font-bold text-gray-900">ভর্তি ও শিক্ষার্থী পরিসংখ্যান (Admission Metrics)</h3>
+        </div>
         
-        <!-- সেকশন ১: তথ্য বা কন্টেন্ট টেবিল -->
-        <section class="card">
-            <h2>নমুনা কন্টেন্ট বা প্রশ্ন তালিকা</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ক্রমিক</th>
-                        <th>টপিক / বিষয়</th>
-                        <th>স্ট্যাটাস</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>০১</td>
-                        <td>অধ্যায় ০১: কোষ ও এর গঠন</td>
-                        <td><span class="badge সম্পন্ন">সম্পন্ন</span></td>
-                    </tr>
-                    <tr>
-                        <td>০২</td>
-                        <td>অধ্যায় ০২: কোষ বিভাজন</td>
-                        <td><span class="badge বাকি">চলমান</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        <!-- মূল ৩টি কার্ড গ্রিড -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div id="cardTotalStudents" onclick="toggleMainCard('total')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">মোট সক্রিয় শিক্ষার্থী</p>
+              <h4 id="countTotal" class="text-2xl font-bold text-slate-800 mt-1">০</h4>
+            </div>
+            <span class="text-slate-400 text-xl"><i class="fa-solid fa-users"></i></span>
+          </div>
+          <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">ভর্তি ফি সম্পন্ন <span id="pctVortiPaid" class="text-emerald-600 text-[10px]"></span></p>
+              <h4 id="countVortiPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
+            </div>
+            <span class="text-emerald-400 text-xl"><i class="fa-solid fa-circle-check"></i></span>
+          </div>
+          <div id="cardVortiUnpaid" onclick="toggleMainCard('vortiUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition">ভর্তি ফি বাকি <span id="pctVortiUnpaid" class="text-red-600 text-[10px]"></span></p>
+              <h4 id="countVortiUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
+            </div>
+            <span class="text-red-400 text-xl"><i class="fa-solid fa-circle-exclamation"></i></span>
+          </div>
+        </div>
 
-        <!-- সেকশন ২: তথ্য ইনপুট দেওয়ার ফর্ম (কাজ চলার মতো) -->
-        <section class="card">
-            <h2>নতুন তথ্য যুক্তকরণ ফর্ম</h2>
-            <form>
-                <div class="form-group">
-                    <label for="topic">টপিকের নাম:</label>
-                    <input type="text" id="topic" placeholder="এখানে লিখুন...">
-                </div>
-                <div class="form-group">
-                    <label for="note">গুরুত্বপূর্ণ নোট বা মন্তব্য:</label>
-                    <textarea id="note" rows="4" placeholder="মন্তব্য লিখুন..."></textarea>
-                </div>
-                <button type="button" class="btn">সংরক্ষণ করুন (খসড়া)</button>
-            </form>
-        </section>
+        <!-- ১ম ভাগের ডাইনামিক ফিল্টার ও ছক কন্টেইনার -->
+        <div id="containerSec1" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
+          <div class="flex flex-wrap gap-4 items-center bg-gray-50 p-3.5 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
+            <div id="optFilterHsc1" class="flex flex-wrap items-center gap-1.5"></div>
+            <div id="optFilterBatch1" class="flex flex-wrap items-center gap-1.5 hidden"></div>
+          </div>
+          <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
+            <div id="tableWrapper1"></div>
+          </div>
+        </div>
+      </section>
 
-    </main>
+      <!-- 🟨 বডি সেকশন: ২য় ভাগ — বেতন ও বকেয়া -->
+      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
+        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
+          <span class="text-amber-600 bg-amber-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-wallet"></i></span>
+          <h3 class="text-base font-bold text-gray-900">চলতি ও পূর্বের মাসের টিউশন ট্র্যাকিং (Tuition Metrics)</h3>
+        </div>
 
+        <!-- মূল ৩টি কার্ড গ্রিড -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div id="cardMonthPaid" onclick="toggleMonthCard('monthPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblCurrentMonth">চলতি</span> মাসের বেতন পরিশোধ <span id="pctMonthPaid" class="text-emerald-600 text-[10px]"></span></p>
+              <h4 id="countMonthPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
+            </div>
+            <span class="text-emerald-400 text-xl"><i class="fa-solid fa-money-bill-wave"></i></span>
+          </div>
+          <div id="cardMonthUnpaid" onclick="toggleMonthCard('monthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblCurrentMonth">চলতি</span> মাসের বকেয়া <span id="pctMonthUnpaid" class="text-red-600 text-[10px]"></span></p>
+              <h4 id="countMonthUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
+            </div>
+            <span class="text-red-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          </div>
+          <div id="cardPrevMonthUnpaid" onclick="toggleMonthCard('prevMonthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition"><span class="lblPrevMonth">পূর্বের</span> মাসের বকেয়া <span id="pctPrevMonthUnpaid" class="text-amber-600 text-[10px]"></span></p>
+              <h4 id="countPrevMonthUnpaid" class="text-2xl font-bold text-amber-600 mt-1">০</h4>
+            </div>
+            <span class="text-amber-400 text-xl"><i class="fa-solid fa-clock-rotate-left"></i></span>
+          </div>
+        </div>
+
+        <!-- ২য় ভাগের ডাইনামিক ফিল্টার ও ছক কন্টেইনার -->
+        <div id="containerSec2" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
+          <div class="flex flex-wrap gap-4 items-center bg-gray-50 p-3.5 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
+            <div id="optFilterHsc2" class="flex flex-wrap items-center gap-1.5"></div>
+            <div id="optFilterBatch2" class="flex flex-wrap items-center gap-1.5 hidden"></div>
+          </div>
+          <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
+            <div id="tableWrapper2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 🟦 বডি সেকশন: ৩য় ভাগ — তথ্য তালিকা (বাটন ফিল্টার ডিরেক্টরি) -->
+      <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 mb-10">
+        <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
+          <span class="text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-address-book"></i></span>
+          <h3 class="text-base font-bold text-gray-900">তথ্য তালিকা (Search Filter Directory)</h3>
+        </div>
+
+        <div class="space-y-4">
+          <!-- ধাপ ১: এইচএসসি ফিল্টার বাটন সারি -->
+          <div class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষাবর্ষ নির্বাচন করুন</p>
+            <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!--  ধাপ ২: ব্যাচ ফিল্টার বাটন সারি -->
+          <div id="sec3BatchContainer" class="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100 hidden">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ নির্বাচন করুন</p>
+            <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- ধাপ ৩: চূড়ান্ত ফিক্সড ৩ কলাম টেবিল -->
+          <div id="containerSec3Table" class="hidden pt-4">
+            <p class="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1"><i class="fa-solid fa-table-list"></i> ডিরেক্টরি ফলাফল (নাম, কলেজ ও মোবাইল)</p>
+            <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
+              <div id="tableWrapper3"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       🧠 জাভাস্ক্রিপ্ট ইঞ্জিন ও গিটহাব কানেক্টিভিটি
+       ========================================== -->
+  <script>
+    // 👈 অত্যন্ত গুরুত্বপূর্ণ: আপনার অ্যাপস স্ক্রিপ্ট থেকে পাওয়া ওয়েব অ্যাপ ইউআরএলটি এখানে বসান
+    const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwTgAUWEM4GnIcIIQyNL6WF2SZQfFF3fYhg7P0eABB93owdLrTuwMOeWv8vbtEJiI-h/exec";
+
+    let globalData = null;
+    let activeSection1Card = null;
+    let activeSection2Card = null;
+    
+    let sec1SelectedHsc = null, sec1SelectedBatch = null;
+    let sec2SelectedHsc = null, sec2SelectedBatch = null;
+    let sec3SelectedHsc = null, sec3SelectedBatch = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkSession();
+    });
+
+    // ১৫ মিনিটের টাইমআউট সেশন চেক লজিক
+    function checkSession() {
+      const loginTime = localStorage.getItem('primerLoginTime');
+      if (loginTime) {
+        const now = new Date().getTime();
+        const fifteenMinutes = 15 * 60 * 1000;
+        
+        if (now - loginTime < fifteenMinutes) {
+          showDashboard();
+        } else {
+          localStorage.removeItem('primerLoginTime');
+          hideDashboard();
+        }
+      } else {
+        hideDashboard();
+      }
+    }
+
+    // লগইন রিকোয়েস্ট প্রসেস ও নিরাপত্তা হ্যান্ডলিং
+    function handleLogin() {
+      const passwordInput = document.getElementById('appPassword');
+      const loginError = document.getElementById('loginError');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      const password = passwordInput.value.trim();
+      if (!password) {
+        loginError.innerText = 'দয়া করে পাসওয়ার্ড লিখুন!';
+        loginError.classList.remove('hidden');
+        return;
+      }
+
+      loginError.classList.add('hidden');
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> যাচাই করা হচ্ছে...';
+
+      // GitHub থেকে গুগল অ্যাপস স্ক্রিপ্ট POST API-তে রিকোয়েস্ট পাঠানো
+      fetch(GOOGLE_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ password: password })
+      })
+      .then(response => response.json())
+      .then(response => {
+        if (response.success) {
+          localStorage.setItem('primerLoginTime', new Date().getTime());
+          globalData = response;
+          showDashboard();
+        } else {
+          loginError.innerText = response.message;
+          loginError.classList.remove('hidden');
+          loginBtn.disabled = false;
+          loginBtn.innerText = 'প্রবেশ করুন';
+        }
+      })
+      .catch(() => {
+        loginError.innerText = 'নেটওয়ার্ক সমস্যা অথবা ভুল এপিআই লিঙ্ক! আবার চেষ্টা করুন।';
+        loginError.classList.remove('hidden');
+        loginBtn.disabled = false;
+        loginBtn.innerText = 'প্রবেশ করুন';
+      });
+    }
+
+    function hideDashboard() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('dashboardBody').classList.add('hidden');
+      document.getElementById('globalLoader').classList.add('hidden');
+    }
+
+    // সফল লগইনের পর ড্যাশবোর্ড সাজানো
+    function showDashboard() {
+      document.getElementById('loginSection').classList.add('hidden');
+      
+      if (globalData) {
+        // ডেটা অলরেডি মেমোরিতে ক্যাশ থাকলে সরাসরি প্রদর্শন
+        document.getElementById('globalLoader').classList.add('hidden');
+        document.getElementById('dashboardBody').classList.remove('hidden');
+        
+        document.getElementById('liveTimestamp').innerText = globalData.timestamp;
+        
+        const lblCurrents = document.getElementsByClassName('lblCurrentMonth');
+        for(let el of lblCurrents) el.innerText = globalData.currentMonthName;
+        const lblPrevs = document.getElementsByClassName('lblPrevMonth');
+        for(let el of lblPrevs) el.innerText = globalData.prevMonthName;
+
+        calculateStatistics();
+        generateSec3HscButtons();
+      } else {
+        // ব্যাকগ্রাউন্ডে সেশন চালু থাকলে ডাইরেক্ট ফেচ মেকানিজম (পাসওয়ার্ড রিকল)
+        document.getElementById('globalLoader').classList.remove('hidden');
+        // ইউজারকে ডাবল লগইন থেকে বাঁচাতে এপিআই ট্র্রিগার (যদি অলরেডি ভেরিফাইড মেমোরি থাকে)
+        hideDashboard();
+        localStorage.removeItem('primerLoginTime'); // ফ্রন্টএন্ড ফোর্সড রি-লগইন প্রোটেকশন
+      }
+    }
+
+    // ১ম ও ২য় সেকশনের স্ট্যাটিসটিক্স কাউন্টিং লজিক
+    function calculateStatistics() {
+      const students = globalData.students;
+      
+      // ১ম ভাগ: ভর্তি ফি ট্র্যাকিং লজিক (X ও ফাকা বাদ)
+      const totalStudentsList = students.filter(s => s.vortiFee !== 'X' && s.vortiFee !== '');
+      const totalCount = totalStudentsList.length;
+      
+      const vortiPaidList = totalStudentsList.filter(s => s.vortiFee === 'P' || (!isNaN(s.vortiFee) && s.vortiFee !== ''));
+      const vortiUnpaidList = totalStudentsList.filter(s => s.vortiFee === 'U');
+
+      document.getElementById('countTotal').innerHTML = `${totalCount} <span class="text-xs font-normal text-gray-400">(১০০%)</span>`;
+      
+      const pPct = totalCount > 0 ? Math.round((vortiPaidList.length / totalCount) * 100) : 0;
+      document.getElementById('countVortiPaid').innerText = vortiPaidList.length;
+      document.getElementById('pctVortiPaid').innerText = `(${pPct}%)`;
+
+      const uPct = totalCount > 0 ? Math.round((vortiUnpaidList.length / totalCount) * 100) : 0;
+      document.getElementById('countVortiUnpaid').innerText = vortiUnpaidList.length;
+      document.getElementById('pctVortiUnpaid').innerText = `(${uPct}%)`;
+
+      // ২য় ভাগ: মাসিক বেতন ট্র্যাকিং লজিক
+      const currentValidList = students.filter(s => s.currentMonthStatus !== 'X');
+      const mPaidList = currentValidList.filter(s => s.currentMonthStatus === 'P' || (!isNaN(s.currentMonthStatus) && s.currentMonthStatus !== ''));
+      const mUnpaidList = currentValidList.filter(s => s.currentMonthStatus === 'U' || s.currentMonthStatus === '');
+
+      const prevValidList = students.filter(s => s.prevMonthStatus !== 'X');
+      const pUnpaidList = prevValidList.filter(s => s.prevMonthStatus === 'U');
+
+      const mPaidPct = currentValidList.length > 0 ? Math.round((mPaidList.length / currentValidList.length) * 100) : 0;
+      document.getElementById('countMonthPaid').innerText = mPaidList.length;
+      document.getElementById('pctMonthPaid').innerText = `(${mPaidPct}%)`;
+
+      const mUnpaidPct = currentValidList.length > 0 ? Math.round((mUnpaidList.length / currentValidList.length) * 100) : 0;
+      document.getElementById('countMonthUnpaid').innerText = mUnpaidList.length;
+      document.getElementById('pctMonthUnpaid').innerText = `(${mUnpaidPct}%)`;
+
+      const pUnpaidPct = prevValidList.length > 0 ? Math.round((pUnpaidList.length / prevValidList.length) * 100) : 0;
+      document.getElementById('countPrevMonthUnpaid').innerText = pUnpaidList.length;
+      document.getElementById('pctPrevMonthUnpaid').innerText = `(${pUnpaidPct}%)`;
+    }
+
+    // ==========================================
+    // 🟩 সেকশন ১: অন/অফ এবং ট্রিপল-লেয়ার ফিল্টার
+    // ==========================================
+    function toggleMainCard(cardType) {
+      if (activeSection1Card === cardType) {
+        activeSection1Card = null;
+        document.getElementById('containerSec1').classList.add('hidden');
+      } else {
+        activeSection1Card = cardType;
+        document.getElementById('containerSec1').classList.remove('hidden');
+        sec1SelectedHsc = null; sec1SelectedBatch = null;
+      }
+      
+      document.getElementById('cardTotalStudents').classList.toggle('active-card', activeSection1Card === 'total');
+      document.getElementById('cardVortiPaid').classList.toggle('active-card', activeSection1Card === 'vortiPaid');
+      document.getElementById('cardVortiUnpaid').classList.toggle('active-card', activeSection1Card === 'vortiUnpaid');
+      
+      if (activeSection1Card) renderSection1FiltersAndTable();
+    }
+
+    function renderSection1FiltersAndTable() {
+      let list = globalData.students.filter(s => s.vortiFee !== 'X' && s.vortiFee !== '');
+      
+      if (activeSection1Card === 'vortiPaid') {
+        list = list.filter(s => s.vortiFee === 'P' || (!isNaN(s.vortiFee) && s.vortiFee !== ''));
+      } else if (activeSection1Card === 'vortiUnpaid') {
+        list = list.filter(s => s.vortiFee === 'U');
+      }
+
+      // এইচএসসি বাটন রেন্ডারিং
+      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      const hscWrapper = document.getElementById('optFilterHsc1');
+      hscWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
+      
+      hscValues.forEach(hsc => {
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec1SelectedHsc === hsc ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+        btn.innerText = hsc;
+        btn.onclick = () => {
+          sec1SelectedHsc = (sec1SelectedHsc === hsc) ? null : hsc;
+          sec1SelectedBatch = null;
+          renderSection1FiltersAndTable();
+        };
+        hscWrapper.appendChild(btn);
+      });
+
+      // অপশনাল ব্যাচ বাটন লেয়ার
+      const batchWrapper = document.getElementById('optFilterBatch1');
+      if (sec1SelectedHsc) {
+        batchWrapper.classList.remove('hidden');
+        let filteredForBatch = list.filter(s => s.hsc === sec1SelectedHsc);
+        const batchValues = [...new Set(filteredForBatch.map(s => s.batch).filter(Boolean))].sort();
+        
+        batchWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
+        batchValues.forEach(b => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec1SelectedBatch === b ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+          btn.innerText = b;
+          btn.onclick = () => {
+            sec1SelectedBatch = (sec1SelectedBatch === b) ? null : b;
+            renderSection1FiltersAndTable();
+          };
+          batchWrapper.appendChild(btn);
+        });
+      } else {
+        batchWrapper.classList.add('hidden');
+      }
+
+      if (sec1SelectedHsc) list = list.filter(s => s.hsc === sec1SelectedHsc);
+      if (sec1SelectedBatch) list = list.filter(s => s.batch === sec1SelectedBatch);
+
+      buildTable(document.getElementById('tableWrapper1'), globalData.headers, list, true);
+    }
+
+    // ==========================================
+    // 🟨 সেকশন ২: বেতন কার্ড অন/অফ ফিল্টার লজিক
+    // ==========================================
+    function toggleMonthCard(cardType) {
+      if (activeSection2Card === cardType) {
+        activeSection2Card = null;
+        document.getElementById('containerSec2').classList.add('hidden');
+      } else {
+        activeSection2Card = cardType;
+        document.getElementById('containerSec2').classList.remove('hidden');
+        sec2SelectedHsc = null; sec2SelectedBatch = null;
+      }
+
+      document.getElementById('cardMonthPaid').classList.toggle('active-card', activeSection2Card === 'monthPaid');
+      document.getElementById('cardMonthUnpaid').classList.toggle('active-card', activeSection2Card === 'monthUnpaid');
+      document.getElementById('cardPrevMonthUnpaid').classList.toggle('active-card', activeSection2Card === 'prevMonthUnpaid');
+
+      if (activeSection2Card) renderSection2FiltersAndTable();
+    }
+
+    function renderSection2FiltersAndTable() {
+      let list = globalData.students;
+      
+      if (activeSection2Card === 'monthPaid') {
+        list = list.filter(s => s.currentMonthStatus !== 'X' && (s.currentMonthStatus === 'P' || (!isNaN(s.currentMonthStatus) && s.currentMonthStatus !== '')));
+      } else if (activeSection2Card === 'monthUnpaid') {
+        list = list.filter(s => s.currentMonthStatus !== 'X' && (s.currentMonthStatus === 'U' || s.currentMonthStatus === ''));
+      } else if (activeSection2Card === 'prevMonthUnpaid') {
+        list = list.filter(s => s.prevMonthStatus !== 'X' && s.prevMonthStatus === 'U');
+      }
+
+      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      const hscWrapper = document.getElementById('optFilterHsc2');
+      hscWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
+      
+      hscValues.forEach(hsc => {
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec2SelectedHsc === hsc ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+        btn.innerText = hsc;
+        btn.onclick = () => {
+          sec2SelectedHsc = (sec2SelectedHsc === hsc) ? null : hsc;
+          sec2SelectedBatch = null;
+          renderSection2FiltersAndTable();
+        };
+        hscWrapper.appendChild(btn);
+      });
+
+      const batchWrapper = document.getElementById('optFilterBatch2');
+      if (sec2SelectedHsc) {
+        batchWrapper.classList.remove('hidden');
+        let filteredForBatch = list.filter(s => s.hsc === sec2SelectedHsc);
+        const batchValues = [...new Set(filteredForBatch.map(s => s.batch).filter(Boolean))].sort();
+        
+        batchWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
+        batchValues.forEach(b => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec2SelectedBatch === b ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+          btn.innerText = b;
+          btn.onclick = () => {
+            sec2SelectedBatch = (sec2SelectedBatch === b) ? null : b;
+            renderSection2FiltersAndTable();
+          };
+          batchWrapper.appendChild(btn);
+        });
+      } else {
+        batchWrapper.classList.add('hidden');
+      }
+
+      if (sec2SelectedHsc) list = list.filter(s => s.hsc === sec2SelectedHsc);
+      if (sec2SelectedBatch) list = list.filter(s => s.batch === sec2SelectedBatch);
+
+      const limitedHeaders = globalData.headers.slice(0, 5); // ১ম ৫টি কলাম
+      buildTable(document.getElementById('tableWrapper2'), limitedHeaders, list, false);
+    }
+
+    // ==========================================
+    // 🟦 সেকশন ৩: বাটন নির্ভর তথ্য তালিকা ডিরেক্টরি
+    // ==========================================
+    function generateSec3HscButtons() {
+      const list = globalData.students;
+      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      const btnGroup = document.getElementById('btnGroupHsc3');
+      btnGroup.innerHTML = '';
+
+      hscValues.forEach(hsc => {
+        const btn = document.createElement('button');
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition duration-150 ${sec3SelectedHsc === hsc ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.innerText = hsc;
+        btn.onclick = () => {
+          sec3SelectedHsc = (sec3SelectedHsc === hsc) ? null : hsc;
+          sec3SelectedBatch = null;
+          document.getElementById('containerSec3Table').classList.add('hidden');
+          
+          generateSec3HscButtons(); 
+          handleSec3HscChange();
+        };
+        btnGroup.appendChild(btn);
+      });
+    }
+
+    function handleSec3HscChange() {
+      const container = document.getElementById('sec3BatchContainer');
+      if (!sec3SelectedHsc) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+      const filteredList = globalData.students.filter(s => s.hsc === sec3SelectedHsc);
+      const batchValues = [...new Set(filteredList.map(s => s.batch).filter(Boolean))].sort();
+      
+      const btnGroup = document.getElementById('btnGroupBatch3');
+      btnGroup.innerHTML = '';
+
+      batchValues.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition duration-150 ${sec3SelectedBatch === b ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.innerText = b;
+        btn.onclick = () => {
+          sec3SelectedBatch = (sec3SelectedBatch === b) ? null : b;
+          handleSec3BatchChange();
+          handleSec3HscChange(); 
+        };
+        btnGroup.appendChild(btn);
+      });
+    }
+
+    function handleSec3BatchChange() {
+      const tableContainer = document.getElementById('containerSec3Table');
+      if (!sec3SelectedBatch) {
+        tableContainer.classList.add('hidden');
+        return;
+      }
+
+      tableContainer.classList.remove('hidden');
+      let list = globalData.students.filter(s => s.hsc === sec3SelectedHsc && s.batch === sec3SelectedBatch);
+
+      const targetHeaders = ['নাম', 'কলেজ', 'মোবাইল নাম্বার'];
+      buildTable(document.getElementById('tableWrapper3'), targetHeaders, list, false, true);
+    }
+
+    // ==========================================
+    // 🛠️ ডাইনামিক টেবিল রেন্ডারিং ও ডায়াল প্যাড লজিক
+    // ==========================================
+    function buildTable(targetContainer, headers, list, showAllColumns = false, isSection3 = false) {
+      if (list.length === 0) {
+        targetContainer.innerHTML = `
+          <div class="p-8 text-center font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-100 text-sm">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i> এই ক্যাটাগরিতে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
+          </div>`;
+        return;
+      }
+
+      let html = `<table class="min-w-full divide-y divide-gray-200 text-[13px]">
+                    <thead class="bg-gray-50 sticky top-0 shadow-sm z-10">
+                      <tr>`;
+      
+      headers.forEach(h => {
+        html += `<th class="px-4 py-3 text-gray-700 font-bold border-b border-gray-200 whitespace-nowrap text-center">${h}</th>`;
+      });
+      html += `</tr></thead><tbody class="bg-white divide-y divide-gray-100">`;
+
+      list.forEach(student => {
+        html += `<tr class="hover:bg-slate-50 font-medium transition text-center text-gray-700">`;
+        
+        if (isSection3) {
+          html += `<td class="px-4 py-3 text-gray-900 font-bold whitespace-nowrap">${student.name}</td>`;
+          html += `<td class="px-4 py-3 text-gray-500 whitespace-nowrap">${student.college}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPhoneLink(student.phone)}</td>`;
+        } else if (showAllColumns) {
+          student.allDataRaw.forEach((cellValue, idx) => {
+            let displayedValue = cellValue;
+            
+            if (idx === globalData.headers.indexOf('মোবাইল নাম্বার')) {
+              displayedValue = formatPhoneLink(cellValue);
+              html += `<td class="px-4 py-3 whitespace-nowrap">${displayedValue}</td>`;
+            } else {
+              if (idx === globalData.headers.indexOf('ভর্তি ফি') || idx >= globalData.headers.indexOf('জানুয়ারি')) {
+                displayedValue = formatPaymentStatus(cellValue);
+              }
+              html += `<td class="px-4 py-3 whitespace-nowrap">${displayedValue}</td>`;
+            }
+          });
+        } else {
+          html += `<td class="px-4 py-3 text-gray-900 font-bold whitespace-nowrap">${student.name}</td>`;
+          html += `<td class="px-4 py-3 text-gray-500 whitespace-nowrap">${student.college}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPhoneLink(student.phone)}</td>`;
+          html += `<td class="px-4 py-3 text-gray-600 whitespace-nowrap">${student.hsc}</td>`;
+          html += `<td class="px-4 py-3 text-gray-600 whitespace-nowrap">${student.batch}</td>`;
+        }
+        
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      targetContainer.innerHTML = html;
+    }
+
+    // 📞 গ্লোবাল মোবাইল নাম্বার ক্লিকেবল ডায়াল প্যাড লিংক মেকার (tel:)
+    function formatPhoneLink(phone) {
+      if (!phone) return '<span class="text-gray-300">—</span>';
+      const cleanPhone = phone.replace(/[^0-8]/g, ''); // শুধু নাম্বার অংশটুকু ফিল্টার (স্পেস বা হাইফেন পরিষ্কার)
+      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline decoration-blue-400 hover:text-blue-800 transition bg-blue-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${phone}</a>`;
+    }
+
+    // 💵 পেমেন্ট ক্যারেক্টার এবং ভিজ্যুয়াল ক্যাপসুল ব্যাজ ফরম্যাটার
+    function formatPaymentStatus(val) {
+      const cleanVal = String(val).trim();
+      if (cleanVal === 'P') return '<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm">পেইড</span>';
+      if (cleanVal === 'U') return '<span class="px-2.5 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-full shadow-sm">আনpেইড</span>';
+      if (cleanVal === 'X') return '<span class="px-2.5 py-0.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-full shadow-sm">বাদ</span>';
+      if (!isNaN(cleanVal) && cleanVal !== '') {
+        return `<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm"><i class="fa-solid fa-circle-check text-[10px]"></i> পেইড (${cleanVal})</span>`;
+      }
+      return val;
+    }
+  </script>
 </body>
 </html>
