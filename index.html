@@ -35,7 +35,7 @@
         .stat-month { border-top: 4px solid #805ad5; }
         
         /* View Controls / Buttons */
-        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 5px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 5px; }
         .btn { background: #00897b; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: all 0.2s; }
         .btn:hover { background: #005f56; transform: translateY(-1px); box-shadow: 0 4px 4px rgba(0,0,0,0.12); }
         .btn-secondary { background: #4a5568; }
@@ -107,14 +107,11 @@
             </div>
             
             <div class="section-title" style="margin-top: 25px;">চলতি ও পূর্ববর্তী মাসের ফি ট্র্যাকিং</div>
-            <div class="stats-container" id="dynamic-months-container">
-                </div>
+            <div class="stats-container" id="dynamic-months-container"></div>
 
             <div class="section-title" style="margin-top: 35px;">এইচএসসি ব্যাচ অনুযায়ী তালিকা</div>
-            <div class="controls" style="justify-content: flex-start;">
-                <button class="btn" onclick="showHscBatches('HSC-22')">🎓 HSC 2022</button>
-                <button class="btn" onclick="showHscBatches('HSC-23')">🎓 HSC 2023</button>
-            </div>
+            <div class="controls" id="hsc-buttons-container" style="justify-content: flex-start;">
+                </div>
 
             <div id="batches-display-section" class="hidden">
                 <h3 id="selected-hsc-title" style="margin-top: 25px; color: #005f56; font-size: 18px; font-weight: 600;"></h3>
@@ -153,10 +150,8 @@
             const currentIdx = now.getMonth(); 
             const currentYear = now.getFullYear();
             
-            // চলতি মাসের ফরম্যাট (যেমন: মে-২০২৬)
             currentMonthName = `${monthsBn[currentIdx]}-${currentYear}`;
             
-            // পূর্ববর্তী মাসের হিসাব
             let prevIdx = currentIdx - 1;
             let prevYear = currentYear;
             if (prevIdx < 0) {
@@ -164,14 +159,12 @@
                 prevYear = currentYear - 1;
             }
             prevMonthName = `${monthsBn[prevIdx]}-${prevYear}`;
-            
-            console.log("Detected Months:", currentMonthName, "and", prevMonthName);
         }
 
         // Fetch data from Google Sheet API
         async function loadSheetData() {
             try {
-                detectTargetMonths(); // মাস দুটি আগে ডিটেক্ট করে নেওয়া হলো
+                detectTargetMonths();
                 
                 const response = await fetch(API_URL);
                 const rawData = await response.json();
@@ -186,6 +179,7 @@
 
                 document.getElementById('loader').style.display = 'none';
                 calculateDashboardStats();
+                generateHscButtons(); // 🚀 ২. ডাটা লোড হওয়ার পর অটো বাটন জেনারেট হবে
             } catch (error) {
                 console.error("Data fetch error:", error);
                 document.getElementById('loader').innerHTML = "<span style='color: #feb2b2;'>ডাটা লোড করতে সমস্যা হয়েছে! স্ক্রিপ্ট লিংকটি ঠিক আছে কিনা চেক করুন।</span>";
@@ -208,15 +202,14 @@
                 return hasBatch && hasDate && isUnpaid;
             }).length;
 
-            // ড্যাশবোর্ডের বেসিক তথ্য আপডেট
             document.getElementById('total-students').innerText = total + " জন";
             document.getElementById('total-admission-paid').innerText = admissionPaid + " জন";
             document.getElementById('total-admission-unpaid').innerText = admissionUnpaid + " জন";
 
-            // 🚀 ডাইনামিকালি চলতি ও পূর্ববর্তী মাসের পার্সেন্টেজ হিসাব ও কার্ড তৈরি
+            // চলতি ও পূর্ববর্তী মাসের ফি ট্র্যাকিং
             const targetMonths = [currentMonthName, prevMonthName];
             const monthsContainer = document.getElementById('dynamic-months-container');
-            monthsContainer.innerHTML = ""; // আগের ডাটা পরিষ্কার
+            monthsContainer.innerHTML = "";
 
             targetMonths.forEach((monthKey, idx) => {
                 let paidCount = 0;
@@ -239,15 +232,52 @@
             });
         }
 
+        // 🚀 ৩. "এইচ এস সি" কলামের ডাটা রিড করে ডাইনামিক বাটন তৈরির ম্যাজিক ফাংশন
+        function generateHscButtons() {
+            const hscContainer = document.getElementById('hsc-buttons-container');
+            hscContainer.innerHTML = ""; // কন্টেইনার খালি করা হলো
+
+            // "এইচ এস সি" কলামের ইউনিক মানগুলো বের করা হচ্ছে (ফাঁকা রো বাদ দিয়ে)
+            const uniqueHscYears = [];
+            globalData.forEach(row => {
+                if (row["এইচ এস সি"]) {
+                    const hscValue = String(row["এইচ এস সি"]).trim();
+                    if (hscValue !== "" && !uniqueHscYears.includes(hscValue)) {
+                        uniqueHscYears.push(hscValue);
+                    }
+                }
+            });
+
+            // ইউনিক বছরগুলোকে ক্রমানুসারে সাজানো (যেমন: 2022, 2023)
+            uniqueHscYears.sort();
+
+            // যদি কোনো ডাটা না থাকে
+            if(uniqueHscYears.length === 0) {
+                hscContainer.innerHTML = "<p style='color:#718096; font-style:italic;'>শীটে কোনো এইচএসসি ব্যাচের ডাটা পাওয়া যায়নি।</p>";
+                return;
+            }
+
+            // প্রতিটি ইউনিক মানের জন্য অটো বাটন তৈরি
+            uniqueHscYears.forEach(hscYear => {
+                const button = document.createElement('button');
+                button.className = "btn";
+                button.innerHTML = `🎓 ${hscYear}`;
+                button.onclick = () => showHscBatches(hscYear);
+                hscContainer.appendChild(button);
+            });
+        }
+
         function showHscBatches(hscYear) {
             document.getElementById('batches-display-section').classList.remove('hidden');
             document.getElementById('selected-hsc-title').innerText = "📌 " + hscYear + " এর ব্যাচসমূহ:";
             
+            // এই HSC বছরের সব এক্টিভ ছাত্র ফিল্টার করা হচ্ছে
             const hscStudents = globalData.filter(row => row["এইচ এস সি"] && String(row["এইচ এস সি"]).trim() === hscYear);
             
+            // 🚀 ৪. "ব্যাচ" এবং "সময়" কলামের সমন্বয়ে অটোমেটিক সাব-বাটন/কার্ড তৈরি
             const batchesMap = {};
             hscStudents.forEach(student => {
-                const batchName = student["ব্যাচ"] ? String(student["ব্যাচ"]).trim() : "অন্যান্য";
+                const batchName = student["ব্যাচ"] ? String(student["ব্যাচ"]).trim() : "ব্যাচ উল্লেখ নেই";
                 const batchTime = student["সময়"] ? String(student["সময়"]).trim() : "সময় উল্লেখ নেই";
                 const key = batchName + " | " + batchTime;
                 
@@ -256,10 +286,9 @@
                 }
                 batchesMap[key].total++;
                 
-                const hasDate = student["first ক্লাসের তারিখ"] || student["প্রথম ক্লাসের তারিখ"];
-                const hasDateStr = hasDate && String(hasDate).trim() !== "";
+                const hasDate = student["প্রথম ক্লাসের তারিখ"] && String(student["প্রথম ক্লাসের তারিখ"]).trim() !== "";
                 const isUnpaid = student["ভর্তি ফি"] && String(student["ভর্তি ফি"]).trim().toLowerCase() === 'unpaid';
-                if(hasDateStr && isUnpaid) {
+                if(hasDate && isUnpaid) {
                     batchesMap[key].unpaidAdmission++;
                 }
             });
@@ -269,7 +298,6 @@
 
             Object.keys(batchesMap).forEach(key => {
                 const b = batchesMap[key];
-                if(b.name === "অন্যান্য" && b.total === 0) return;
                 
                 const card = document.createElement('div');
                 card.className = "batch-card";
@@ -327,7 +355,6 @@
                     row.className = 'student-row';
                 }
                 
-                // ডাইনামিক মাসের পেমেন্ট ব্যাজ (মেডিকেল/শিক্ষক ভিউ)
                 const currentVal = s[currentMonthName] ? String(s[currentMonthName]).trim() : 'Unpaid';
                 const prevVal = s[prevMonthName] ? String(s[prevMonthName]).trim() : 'Unpaid';
                 
