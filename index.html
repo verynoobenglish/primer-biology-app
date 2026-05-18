@@ -50,7 +50,7 @@
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
             <i class="fa-solid fa-lock"></i>
           </span>
-          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition">
+          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition">
         </div>
         <p id="loginError" class="text-xs text-red-600 font-semibold hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></p>
         <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2 transition">
@@ -79,14 +79,14 @@
           <div id="cardTotalStudents" onclick="toggleMainCard('total')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
               <p class="text-xs font-semibold text-gray-500">মোট সক্রিয় শিক্ষার্থী</p>
-              <h4 id="countTotal" class="text-2xl font-bold text-slate-800 mt-1">০</h4>
+              <h4 id="countTotal" class="text-2xl font-bold text-slate-800 mt-1">०</h4>
             </div>
             <span class="text-slate-400 text-xl"><i class="fa-solid fa-users"></i></span>
           </div>
           <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
               <p class="text-xs font-semibold text-gray-500">ভর্তি ফি সম্পন্ন</p>
-              <h4 id="countVortiPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
+              <h4 id="countVortiPaid" class="text-2xl font-bold text-emerald-600 mt-1">०</h4>
             </div>
             <span class="text-emerald-400 text-xl"><i class="fa-solid fa-circle-check"></i></span>
           </div>
@@ -154,7 +154,7 @@
         </div>
       </section>
 
-      <!-- 🟦 ৩য় ভাগ — সার্চ ডিরেক্টরি -->
+      <!-- 🟦 ३य় ভাগ — সার্চ ডিরেক্টরি -->
       <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 mb-10">
         <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
           <span class="text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-address-book"></i></span>
@@ -163,11 +163,11 @@
 
         <div class="space-y-4">
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষার্থী</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ १: এইচএসসি (HSC) শিক্ষার্থী নির্বাচন</p>
             <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
           </div>
           <div id="sec3BatchContainer" class="bg-slate-50 p-4 rounded-xl border border-slate-100 hidden">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ २: নির্দিষ্ট ব্যাচ</p>
             <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
           </div>
           <div id="containerSec3Table" class="hidden pt-4">
@@ -182,7 +182,7 @@
   </main>
 
   <script>
-    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
+    // 👈 १. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
     // 👈 २. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
@@ -195,6 +195,9 @@
     let sec1SelectedHsc = null, sec1SelectedBatch = null;
     let sec2SelectedHsc = null, sec2SelectedBatch = null;
     let sec3SelectedHsc = null, sec3SelectedBatch = null;
+
+    // সেকশन १ এর জন্য প্রয়োজনীয় কলামগুলি
+    const SECTION1_COLUMNS = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', 'প্রথম ক্লাসের তারিখ', 'ভর্তি ফি'];
 
     window.addEventListener('DOMContentLoaded', () => { checkSession(); });
 
@@ -275,7 +278,7 @@
     }
 
     // ==========================================
-    // সেকশন १ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
+    // सेकशन १ — अन/अफ फिल्टर बाटन ও ছक मेकानिজम
     // ==========================================
     function toggleMainCard(type) {
       if (activeSection1Card === type) {
@@ -284,7 +287,7 @@
       } else {
         activeSection1Card = type;
         document.getElementById('containerSec1').classList.remove('hidden');
-        sec1SelectedHsc = null; sec1SelectedBatch = null; // প্রথম ক্লিকে ফিল্টার রিলিজ (সব ডাটা দেখাবে)
+        sec1SelectedHsc = null; sec1SelectedBatch = null;
       }
       
       document.getElementById('cardTotalStudents').classList.toggle('active-card', activeSection1Card === 'total');
@@ -309,7 +312,7 @@
         btn.className = `px-3 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${sec1SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 hover:bg-gray-100'}`;
         btn.innerText = hsc;
         btn.onclick = () => {
-          sec1SelectedHsc = (sec1SelectedHsc === hsc) ? null : hsc; // ক্লিক করলে অন, আবার ক্লিক করলে অফ
+          sec1SelectedHsc = (sec1SelectedHsc === hsc) ? null : hsc;
           sec1SelectedBatch = null;
           renderSection1FiltersAndTable();
         };
@@ -342,11 +345,11 @@
       if (sec1SelectedHsc) list = list.filter(x => x.hsc === sec1SelectedHsc);
       if (sec1SelectedBatch) list = list.filter(x => x.batch === sec1SelectedBatch);
 
-      buildTable(document.getElementById('tableWrapper1'), globalData.headers, list, true);
+      buildTable(document.getElementById('tableWrapper1'), SECTION1_COLUMNS, list, true);
     }
 
     // ==========================================
-    // সেকশন २ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
+    // সেকশन २ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
     // ==========================================
     function toggleMonthCard(type) {
       if (activeSection2Card === type) {
@@ -417,7 +420,7 @@
     }
 
     // ==========================================
-    // সেকশন ३ — ডিরেक্টরি সার্চ বাটন লজিক
+    // সেকশন ३ — ডিরেক্টরি সার্চ বাটন লজিক
     // ==========================================
     function generateSec3HscButtons() {
       const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
@@ -426,7 +429,7 @@
 
       hscValues.forEach(hsc => {
         const btn = document.createElement('button');
-        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100'}`;
         btn.innerText = hsc;
         btn.onclick = () => {
           sec3SelectedHsc = (sec3SelectedHsc === hsc) ? null : hsc;
@@ -452,7 +455,7 @@
 
       batchValues.forEach(b => {
         const btn = document.createElement('button');
-        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100'}`;
         btn.innerText = b;
         btn.onclick = () => {
           sec3SelectedBatch = (sec3SelectedBatch === b) ? null : b;
@@ -526,7 +529,7 @@
     function formatPhoneLink(phone) {
       if (!phone) return '<span class="text-gray-300">—</span>';
       const cleanPhone = String(phone).replace(/[^0-9]/g, '');
-      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${cleanPhone}</a>`;
+      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-xs"></i></a>`;
     }
 
     function formatPaymentStatus(val) {
