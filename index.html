@@ -25,7 +25,7 @@
         <h1 class="text-2xl font-bold tracking-wide flex items-center justify-center sm:justify-start gap-2">
           <i class="fa-solid fa-dna animate-pulse"></i> প্রাইমার বায়োলজি
         </h1>
-        <p class="text-xs text-blue-200 font-medium mt-0.5">অফিসিয়াল স্টুডেন্ট লাইভ ডাটাবেজ প্যানেল</p>
+        <p class="text-xs text-blue-200 font-medium mt-0.5">অফিসিয়াল স্টুডেন্ট লাইভ ডাটাবেজ প্যানেল</p>
       </div>
       <div id="liveTimestamp" class="text-xs sm:text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 font-semibold shadow-inner">
         সর্বশেষ আপডেট: লকড 🔒
@@ -42,7 +42,7 @@
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h2 class="text-xl font-bold text-gray-900">অ্যাডমিন অ্যাক্সেস ভেরিফিকেশন</h2>
-        <p class="text-xs text-gray-500 mt-1">তথ্য সুরক্ষার জন্য প্যানেল পাসওয়ার্ডটি প্রদান করুন</p>
+        <p class="text-xs text-gray-500 mt-1">তথ্য সুরক্ষার জন্য প্যানেল পাসওয়ার্ডটি প্রদান করুন</p>
       </div>
       
       <div class="space-y-4">
@@ -50,10 +50,10 @@
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
             <i class="fa-solid fa-lock"></i>
           </span>
-          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm">
+          <input type="password" id="appPassword" placeholder="গোপন পাসওয়ার্ড লিখুন" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition">
         </div>
         <p id="loginError" class="text-xs text-red-600 font-semibold hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></p>
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2 text-sm">
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2 transition">
           প্রবেশ করুন <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
       </div>
@@ -76,24 +76,24 @@
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div id="cardTotalStudents" onclick="toggleMainCard('total')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardTotalStudents" onclick="toggleMainCard('total')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
-              <p class="text-xs font-semibold text-gray-500">মোট সক্রিয় শিক্ষার্থী</p>
+              <p class="text-xs font-semibold text-gray-500">মোট সক্রিয় শিক্ষার্থী</p>
               <h4 id="countTotal" class="text-2xl font-bold text-slate-800 mt-1">০</h4>
             </div>
             <span class="text-slate-400 text-xl"><i class="fa-solid fa-users"></i></span>
           </div>
-          <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardVortiPaid" onclick="toggleMainCard('vortiPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
               <p class="text-xs font-semibold text-gray-500">ভর্তি ফি সম্পন্ন</p>
               <h4 id="countVortiPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
             </div>
             <span class="text-emerald-400 text-xl"><i class="fa-solid fa-circle-check"></i></span>
           </div>
-          <div id="cardVortiUnpaid" onclick="toggleMainCard('vortiUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardVortiUnpaid" onclick="toggleMainCard('vortiUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
               <p class="text-xs font-semibold text-gray-500">ভর্তি ফি বাকি</p>
-              <h4 id="countVortiUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
+              <h4 id="countVortiUnpaid" class="text-2xl font-bold text-red-600 mt-1">०</h4>
             </div>
             <span class="text-red-400 text-xl"><i class="fa-solid fa-circle-exclamation"></i></span>
           </div>
@@ -119,24 +119,24 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div id="cardMonthPaid" onclick="toggleMonthCard('monthPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardMonthPaid" onclick="toggleMonthCard('monthPaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
               <p class="text-xs font-semibold text-gray-500"><span class="lblCurrentMonth">চলতি</span> মাসের বেতন পরিশোধ</p>
-              <h4 id="countMonthPaid" class="text-2xl font-bold text-emerald-600 mt-1">০</h4>
+              <h4 id="countMonthPaid" class="text-2xl font-bold text-emerald-600 mt-1">०</h4>
             </div>
             <span class="text-emerald-400 text-xl"><i class="fa-solid fa-money-bill-wave"></i></span>
           </div>
-          <div id="cardMonthUnpaid" onclick="toggleMonthCard('monthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardMonthUnpaid" onclick="toggleMonthCard('monthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
-              <p class="text-xs font-semibold text-gray-500"><span class="lblCurrentMonth">চলতি</span> মাসের বকেয়া</p>
-              <h4 id="countMonthUnpaid" class="text-2xl font-bold text-red-600 mt-1">০</h4>
+              <p class="text-xs font-semibold text-gray-500"><span class="lblCurrentMonth">চলতি</span> মাসের বকেয়া</p>
+              <h4 id="countMonthUnpaid" class="text-2xl font-bold text-red-600 mt-1">०</h4>
             </div>
             <span class="text-red-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></span>
           </div>
-          <div id="cardPrevMonthUnpaid" onclick="toggleMonthCard('prevMonthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center group shadow-sm">
+          <div id="cardPrevMonthUnpaid" onclick="toggleMonthCard('prevMonthUnpaid')" class="border border-gray-100 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center">
             <div>
-              <p class="text-xs font-semibold text-gray-500"><span class="lblPrevMonth">পূর্বের</span> মাসের বকেয়া</p>
-              <h4 id="countPrevMonthUnpaid" class="text-2xl font-bold text-amber-600 mt-1">০</h4>
+              <p class="text-xs font-semibold text-gray-500"><span class="lblPrevMonth">পূর্বের</span> মাসের বকেয়া</p>
+              <h4 id="countPrevMonthUnpaid" class="text-2xl font-bold text-amber-600 mt-1">०</h4>
             </div>
             <span class="text-amber-400 text-xl"><i class="fa-solid fa-clock-rotate-left"></i></span>
           </div>
@@ -163,7 +163,7 @@
 
         <div class="space-y-4">
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষাবর্ষ</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষার্থী</p>
             <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
           </div>
           <div id="sec3BatchContainer" class="bg-slate-50 p-4 rounded-xl border border-slate-100 hidden">
@@ -185,7 +185,7 @@
     // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
-    // 👈 ২. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
+    // 👈 २. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
     const APP_SECRET_PASSWORD = "321"; 
 
     let globalData = null;
@@ -216,7 +216,7 @@
         localStorage.setItem('primerLoginTime', new Date().getTime());
         fetchLiveDashboardData();
       } else {
-        err.innerText = 'ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।';
+        err.innerText = 'ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।';
         err.classList.remove('hidden');
       }
     }
@@ -239,7 +239,7 @@
       })
       .catch(() => {
         document.getElementById('globalLoader').classList.add('hidden');
-        alert('নেটওয়ার্ক সমস্যা অথবা এপিআই লিঙ্কটি ভুল।');
+        alert('নেটওয়ার্ক সমস্যা অথবা এপিআই লিঙ্কটি ভুল।');
         hideDashboard();
       });
     }
@@ -275,7 +275,7 @@
     }
 
     // ==========================================
-    // সেকশন ১ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
+    // সেকশন १ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
     // ==========================================
     function toggleMainCard(type) {
       if (activeSection1Card === type) {
@@ -338,7 +338,7 @@
         batchWrapper.classList.add('hidden');
       }
 
-      // চূড়ান্ত ফিল্টারিং ও টেবিল বিল্ডিং
+      // চূড়ান্ত ফিল্টারিং ও টেবিল বিল্ডিং
       if (sec1SelectedHsc) list = list.filter(x => x.hsc === sec1SelectedHsc);
       if (sec1SelectedBatch) list = list.filter(x => x.batch === sec1SelectedBatch);
 
@@ -346,7 +346,7 @@
     }
 
     // ==========================================
-    // সেকশন ২ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
+    // সেকশন २ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
     // ==========================================
     function toggleMonthCard(type) {
       if (activeSection2Card === type) {
@@ -411,13 +411,13 @@
       if (sec2SelectedHsc) list = list.filter(x => x.hsc === sec2SelectedHsc);
       if (sec2SelectedBatch) list = list.filter(x => x.batch === sec2SelectedBatch);
 
-      // ২য় সেকশনে প্রথম ৫টি ফিক্সড কলাম দেখানো হবে
+      // २य় সেকশনে প্রথম ५টি ফিক্সড কলাম দেখানো হবে
       const tuitionHeaders = globalData.headers.slice(0, 5); 
       buildTable(document.getElementById('tableWrapper2'), tuitionHeaders, list, false);
     }
 
     // ==========================================
-    // সেকশন ৩ — ডিরেক্টরি সার্চ বাটন লজিক
+    // সেকশন ३ — ডিরেक্টরি সার্চ বাটন লজিক
     // ==========================================
     function generateSec3HscButtons() {
       const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
@@ -479,7 +479,7 @@
       if (list.length === 0) {
         targetContainer.innerHTML = `
           <div class="p-8 text-center font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-100 text-sm">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i> কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i> কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
           </div>`;
         return;
       }
@@ -526,7 +526,7 @@
     function formatPhoneLink(phone) {
       if (!phone) return '<span class="text-gray-300">—</span>';
       const cleanPhone = String(phone).replace(/[^0-9]/g, '');
-      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${phone}</a>`;
+      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${cleanPhone}</a>`;
     }
 
     function formatPaymentStatus(val) {
