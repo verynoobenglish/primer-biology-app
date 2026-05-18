@@ -203,11 +203,11 @@
   <!-- ==========================================
        🧠 জাভাস্ক্রিপ্ট ইঞ্জিন ও কাস্টম ফ্রন্টএন্ড পাসওয়ার্ড লজিক
        ========================================== -->
-  <script>
-    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে বসান
+<script>
+    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
-    // 👈 ২. অ্যাপের গোপন পাসওয়ার্ডটি এখানে সেট করুন (গিটহাব থেকেই পরিবর্তনযোগ্য)
+    // 👈 ২. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
     const APP_SECRET_PASSWORD = "ppp321"; 
 
     let globalData = null;
@@ -218,149 +218,106 @@
     let sec2SelectedHsc = null, sec2SelectedBatch = null;
     let sec3SelectedHsc = null, sec3SelectedBatch = null;
 
-    window.addEventListener('DOMContentLoaded', () => {
-      checkSession();
-    });
+    window.addEventListener('DOMContentLoaded', () => { checkSession(); });
 
-    // ১৫ মিনিটের সেশন ভেরিফিকেশন
     function checkSession() {
       const loginTime = localStorage.getItem('primerLoginTime');
-      if (loginTime) {
-        const now = new Date().getTime();
-        const fifteenMinutes = 15 * 60 * 1000;
-        
-        if (now - loginTime < fifteenMinutes) {
-          // সেশন ঠিক থাকলে সরাসরি ডেটা ফেচ মোডে চলে যাও
-          fetchLiveDashboardData();
-        } else {
-          localStorage.removeItem('primerLoginTime');
-          hideDashboard();
-        }
+      if (loginTime && (new Date().getTime() - loginTime < 15 * 60 * 1000)) {
+        fetchLiveDashboardData();
       } else {
         hideDashboard();
       }
     }
 
-    // ফ্রন্টএন্ড পাসওয়ার্ড ভেরিফিকেশন লজিক
     function handleLogin() {
-      const passwordInput = document.getElementById('appPassword');
-      const loginError = document.getElementById('loginError');
-      const loginBtn = document.getElementById('loginBtn');
+      const pwd = document.getElementById('appPassword').value.trim();
+      const err = document.getElementById('loginError');
       
-      const password = passwordInput.value.trim();
-      if (!password) {
-        loginError.innerText = 'দয়া করে পাসওয়ার্ড লিখুন!';
-        loginError.classList.remove('hidden');
-        return;
+      if (pwd === APP_SECRET_PASSWORD) {
+        err.classList.add('hidden');
+        localStorage.setItem('primerLoginTime', new Date().getTime());
+        fetchLiveDashboardData();
+      } else {
+        err.innerText = 'ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।';
+        err.classList.remove('hidden');
       }
-
-      // কাস্টম অ্যাপ পাসওয়ার্ড মিললো কিনা চেক
-      if (password !== APP_SECRET_PASSWORD) {
-        loginError.innerText = 'ভুল পাসওয়ার্ড! দয়া করে সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন।';
-        loginError.classList.remove('hidden');
-        return;
-      }
-
-      // সঠিক পাসওয়ার্ড হলে লোকাল সেশন চালু করো এবং ডেটা আনো
-      loginError.classList.add('hidden');
-      localStorage.setItem('primerLoginTime', new Date().getTime());
-      fetchLiveDashboardData();
     }
 
-    // এপিআই থেকে সরাসরি লাইভ ডেটা তুলে আনা
     function fetchLiveDashboardData() {
       document.getElementById('loginSection').classList.add('hidden');
       document.getElementById('globalLoader').classList.remove('hidden');
 
       fetch(GOOGLE_WEB_APP_URL)
-      .then(response => response.json())
-      .then(response => {
+      .then(r => r.json())
+      .then(res => {
         document.getElementById('globalLoader').classList.add('hidden');
-        if (response.success) {
-          globalData = response;
+        if (res.success) {
+          globalData = res;
           showDashboard();
         } else {
-          alert('ডেটা লোড করতে ব্যর্থ: ' + response.message);
+          alert('ত্রুটি: ' + res.message);
           hideDashboard();
         }
       })
       .catch(() => {
         document.getElementById('globalLoader').classList.add('hidden');
-        alert('সার্ভার কানেকশন ত্রুটি! গুগল এপিআই লিঙ্কটি চেক করুন অথবা পেজটি রিফ্রেশ করুন।');
+        alert('নেটওয়ার্ক সমস্যা অথবা এপিআই লিঙ্কটি ভুল।');
         hideDashboard();
       });
     }
 
     function hideDashboard() {
-      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('loginSection').remove('hidden');
       document.getElementById('dashboardBody').classList.add('hidden');
-      document.getElementById('globalLoader').classList.add('hidden');
-      document.getElementById('liveTimestamp').innerText = "সর্বশেষ আপডেট: লকড 🔒";
     }
 
     function showDashboard() {
       document.getElementById('dashboardBody').classList.remove('hidden');
       document.getElementById('liveTimestamp').innerText = globalData.timestamp;
       
-      const lblCurrents = document.getElementsByClassName('lblCurrentMonth');
-      for(let el of lblCurrents) el.innerText = globalData.currentMonthName;
-      const lblPrevs = document.getElementsByClassName('lblPrevMonth');
-      for(let el of lblPrevs) el.innerText = globalData.prevMonthName;
+      for(let el of document.getElementsByClassName('lblCurrentMonth')) el.innerText = globalData.currentMonthName;
+      for(let el of document.getElementsByClassName('lblPrevMonth')) el.innerText = globalData.prevMonthName;
 
       calculateStatistics();
       generateSec3HscButtons();
     }
 
+    // ==========================================
+    // 📊 নিখুঁত পরিসংখ্যান ও কাউন্টার গণনা ইঞ্জিন
+    // ==========================================
     function calculateStatistics() {
-      const students = globalData.students;
+      const s = globalData.students.filter(x => x.name && x.name.trim() !== '');
       
-      const totalStudentsList = students.filter(s => s.vortiFee !== 'X' && s.vortiFee !== '');
-      const totalCount = totalStudentsList.length;
+      // সেকশন ১: সক্রিয় এবং ভর্তি ফি ফিল্টারিং
+      const totalActive = s.filter(x => x.vortiFee !== 'X');
+      const vortiPaid = totalActive.filter(x => x.vortiFee === 'P' || (!isNaN(x.vortiFee) && x.vortiFee !== '' && x.vortiFee !== 'U'));
+      const vortiUnpaid = totalActive.filter(x => x.vortiFee === 'U' || x.vortiFee === '');
       
-      const vortiPaidList = totalStudentsList.filter(s => s.vortiFee === 'P' || (!isNaN(s.vortiFee) && s.vortiFee !== ''));
-      const vortiUnpaidList = totalStudentsList.filter(s => s.vortiFee === 'U');
+      document.getElementById('countTotal').innerText = totalActive.length;
+      document.getElementById('countVortiPaid').innerText = vortiPaid.length;
+      document.getElementById('countVortiUnpaid').innerText = vortiUnpaid.length;
 
-      document.getElementById('countTotal').innerHTML = `${totalCount} <span class="text-xs font-normal text-gray-400">(১০০%)</span>`;
-      
-      const pPct = totalCount > 0 ? Math.round((vortiPaidList.length / totalCount) * 100) : 0;
-      document.getElementById('countVortiPaid').innerText = vortiPaidList.length;
-      document.getElementById('pctVortiPaid').innerText = `(${pPct}%)`;
+      // সেকশন ২: চলতি ও পূর্বের মাসের বেতন ট্র্যাকিং
+      const curMonthPaid = totalActive.filter(x => x.currentMonthStatus === 'P' || (!isNaN(x.currentMonthStatus) && x.currentMonthStatus !== '' && x.currentMonthStatus !== 'U' && x.currentMonthStatus !== 'X'));
+      const curMonthUnpaid = totalActive.filter(x => x.currentMonthStatus === 'U' || x.currentMonthStatus === '');
+      const prevMonthUnpaid = totalActive.filter(x => x.prevMonthStatus === 'U' || x.prevMonthStatus === '');
 
-      const uPct = totalCount > 0 ? Math.round((vortiUnpaidList.length / totalCount) * 100) : 0;
-      document.getElementById('countVortiUnpaid').innerText = vortiUnpaidList.length;
-      document.getElementById('pctVortiUnpaid').innerText = `(${uPct}%)`;
-
-      const currentValidList = students.filter(s => s.currentMonthStatus !== 'X');
-      const mPaidList = currentValidList.filter(s => s.currentMonthStatus === 'P' || (!isNaN(s.currentMonthStatus) && s.currentMonthStatus !== ''));
-      const mUnpaidList = currentValidList.filter(s => s.currentMonthStatus === 'U' || s.currentMonthStatus === '');
-
-      const prevValidList = students.filter(s => s.prevMonthStatus !== 'X');
-      const pUnpaidList = prevValidList.filter(s => s.prevMonthStatus === 'U');
-
-      const mPaidPct = currentValidList.length > 0 ? Math.round((mPaidList.length / currentValidList.length) * 100) : 0;
-      document.getElementById('countMonthPaid').innerText = mPaidList.length;
-      document.getElementById('pctMonthPaid').innerText = `(${mPaidPct}%)`;
-
-      const mUnpaidPct = currentValidList.length > 0 ? Math.round((mUnpaidList.length / currentValidList.length) * 100) : 0;
-      document.getElementById('countMonthUnpaid').innerText = mUnpaidList.length;
-      document.getElementById('pctMonthUnpaid').innerText = `(${mUnpaidPct}%)`;
-
-      const pUnpaidPct = prevValidList.length > 0 ? Math.round((pUnpaidList.length / prevValidList.length) * 100) : 0;
-      document.getElementById('countPrevMonthUnpaid').innerText = pUnpaidList.length;
-      document.getElementById('pctPrevMonthUnpaid').innerText = `(${pUnpaidPct}%)`;
+      document.getElementById('countMonthPaid').innerText = curMonthPaid.length;
+      document.getElementById('countMonthUnpaid').innerText = curMonthUnpaid.length;
+      document.getElementById('countPrevMonthUnpaid').innerText = prevMonthUnpaid.length;
     }
 
     // ==========================================
-    // সেকশন ১ ট্রিপল লেয়ার লজিক
+    // 🟩 সেকশন ১ — ভর্তি পরিসংখ্যান বাটন ও ছক
     // ==========================================
-    function toggleMainCard(cardType) {
-      if (activeSection1Card === cardType) {
+    function toggleMainCard(type) {
+      if (activeSection1Card === type) {
         activeSection1Card = null;
         document.getElementById('containerSec1').classList.add('hidden');
       } else {
-        activeSection1Card = cardType;
+        activeSection1Card = type;
         document.getElementById('containerSec1').classList.remove('hidden');
-        sec1SelectedHsc = null; sec1SelectedBatch = null;
+        sec1SelectedHsc = null; sec1SelectedBatch = null; 
       }
       
       document.getElementById('cardTotalStudents').classList.toggle('active-card', activeSection1Card === 'total');
@@ -371,21 +328,22 @@
     }
 
     function renderSection1FiltersAndTable() {
-      let list = globalData.students.filter(s => s.vortiFee !== 'X' && s.vortiFee !== '');
+      let list = globalData.students.filter(x => x.name && x.name.trim() !== '' && x.vortiFee !== 'X');
       
       if (activeSection1Card === 'vortiPaid') {
-        list = list.filter(s => s.vortiFee === 'P' || (!isNaN(s.vortiFee) && s.vortiFee !== ''));
+        list = list.filter(x => x.vortiFee === 'P' || (!isNaN(x.vortiFee) && x.vortiFee !== '' && x.vortiFee !== 'U'));
       } else if (activeSection1Card === 'vortiUnpaid') {
-        list = list.filter(s => s.vortiFee === 'U');
+        list = list.filter(x => x.vortiFee === 'U' || x.vortiFee === '');
       }
 
-      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      // এইচএসসি ফিল্টার বাটন ডাইনামিক জেনারেশন
+      const hscValues = [...new Set(list.map(x => x.hsc).filter(Boolean))].sort();
       const hscWrapper = document.getElementById('optFilterHsc1');
-      hscWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
+      hscWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
       
       hscValues.forEach(hsc => {
         const btn = document.createElement('button');
-        btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec1SelectedHsc === hsc ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+        btn.className = `px-3 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${sec1SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 hover:bg-gray-100'}`;
         btn.innerText = hsc;
         btn.onclick = () => {
           sec1SelectedHsc = (sec1SelectedHsc === hsc) ? null : hsc;
@@ -395,16 +353,17 @@
         hscWrapper.appendChild(btn);
       });
 
+      // ব্যাচ ফিল্টার বাটন ডাইনামিক জেনারেশন
       const batchWrapper = document.getElementById('optFilterBatch1');
       if (sec1SelectedHsc) {
         batchWrapper.classList.remove('hidden');
-        let filteredForBatch = list.filter(s => s.hsc === sec1SelectedHsc);
-        const batchValues = [...new Set(filteredForBatch.map(s => s.batch).filter(Boolean))].sort();
+        let filteredForBatch = list.filter(x => x.hsc === sec1SelectedHsc);
+        const batchValues = [...new Set(filteredForBatch.map(x => x.batch).filter(Boolean))].sort();
         
-        batchWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
+        batchWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
         batchValues.forEach(b => {
           const btn = document.createElement('button');
-          btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec1SelectedBatch === b ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+          btn.className = `px-3 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${sec1SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 hover:bg-gray-100'}`;
           btn.innerText = b;
           btn.onclick = () => {
             sec1SelectedBatch = (sec1SelectedBatch === b) ? null : b;
@@ -416,21 +375,22 @@
         batchWrapper.classList.add('hidden');
       }
 
-      if (sec1SelectedHsc) list = list.filter(s => s.hsc === sec1SelectedHsc);
-      if (sec1SelectedBatch) list = list.filter(s => s.batch === sec1SelectedBatch);
+      // চূড়ান্ত ফিল্টারিং রেন্ডার
+      if (sec1SelectedHsc) list = list.filter(x => x.hsc === sec1SelectedHsc);
+      if (sec1SelectedBatch) list = list.filter(x => x.batch === sec1SelectedBatch);
 
-      buildTable(document.getElementById('tableWrapper1'), globalData.headers, list, true);
+      buildCustomTable(document.getElementById('tableWrapper1'), 'section1', list);
     }
 
     // ==========================================
-    // সেকশন ২ লজিক
+    // 🟨 সেকশন ২ — টিউশন ট্র্যাকিং বাটন ও ছক
     // ==========================================
-    function toggleMonthCard(cardType) {
-      if (activeSection2Card === cardType) {
+    function toggleMonthCard(type) {
+      if (activeSection2Card === type) {
         activeSection2Card = null;
         document.getElementById('containerSec2').classList.add('hidden');
       } else {
-        activeSection2Card = cardType;
+        activeSection2Card = type;
         document.getElementById('containerSec2').classList.remove('hidden');
         sec2SelectedHsc = null; sec2SelectedBatch = null;
       }
@@ -443,23 +403,23 @@
     }
 
     function renderSection2FiltersAndTable() {
-      let list = globalData.students;
+      let list = globalData.students.filter(x => x.name && x.name.trim() !== '' && x.vortiFee !== 'X');
       
       if (activeSection2Card === 'monthPaid') {
-        list = list.filter(s => s.currentMonthStatus !== 'X' && (s.currentMonthStatus === 'P' || (!isNaN(s.currentMonthStatus) && s.currentMonthStatus !== '')));
+        list = list.filter(x => x.currentMonthStatus === 'P' || (!isNaN(x.currentMonthStatus) && x.currentMonthStatus !== '' && x.currentMonthStatus !== 'U' && x.currentMonthStatus !== 'X'));
       } else if (activeSection2Card === 'monthUnpaid') {
-        list = list.filter(s => s.currentMonthStatus !== 'X' && (s.currentMonthStatus === 'U' || s.currentMonthStatus === ''));
+        list = list.filter(x => x.currentMonthStatus === 'U' || x.currentMonthStatus === '');
       } else if (activeSection2Card === 'prevMonthUnpaid') {
-        list = list.filter(s => s.prevMonthStatus !== 'X' && s.prevMonthStatus === 'U');
+        list = list.filter(x => x.prevMonthStatus === 'U' || x.prevMonthStatus === '');
       }
 
-      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      const hscValues = [...new Set(list.map(x => x.hsc).filter(Boolean))].sort();
       const hscWrapper = document.getElementById('optFilterHsc2');
-      hscWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
+      hscWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-filter"></i> এইচএসসি:</span>`;
       
       hscValues.forEach(hsc => {
         const btn = document.createElement('button');
-        btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec2SelectedHsc === hsc ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+        btn.className = `px-3 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${sec2SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 hover:bg-gray-100'}`;
         btn.innerText = hsc;
         btn.onclick = () => {
           sec2SelectedHsc = (sec2SelectedHsc === hsc) ? null : hsc;
@@ -472,13 +432,13 @@
       const batchWrapper = document.getElementById('optFilterBatch2');
       if (sec2SelectedHsc) {
         batchWrapper.classList.remove('hidden');
-        let filteredForBatch = list.filter(s => s.hsc === sec2SelectedHsc);
-        const batchValues = [...new Set(filteredForBatch.map(s => s.batch).filter(Boolean))].sort();
+        let filteredForBatch = list.filter(x => x.hsc === sec2SelectedHsc);
+        const batchValues = [...new Set(filteredForBatch.map(x => x.batch).filter(Boolean))].sort();
         
-        batchWrapper.innerHTML = `<span class="text-gray-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
+        batchWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
         batchValues.forEach(b => {
           const btn = document.createElement('button');
-          btn.className = `px-2.5 py-1 text-xs border border-gray-300 rounded-lg font-semibold cursor-pointer transition ${sec2SelectedBatch === b ? 'active-btn' : 'bg-white text-gray-700 hover:bg-gray-100'}`;
+          btn.className = `px-3 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${sec2SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 hover:bg-gray-100'}`;
           btn.innerText = b;
           btn.onclick = () => {
             sec2SelectedBatch = (sec2SelectedBatch === b) ? null : b;
@@ -490,31 +450,28 @@
         batchWrapper.classList.add('hidden');
       }
 
-      if (sec2SelectedHsc) list = list.filter(s => s.hsc === sec2SelectedHsc);
-      if (sec2SelectedBatch) list = list.filter(s => s.batch === sec2SelectedBatch);
+      if (sec2SelectedHsc) list = list.filter(x => x.hsc === sec2SelectedHsc);
+      if (sec2SelectedBatch) list = list.filter(x => x.batch === sec2SelectedBatch);
 
-      const limitedHeaders = globalData.headers.slice(0, 5); 
-      buildTable(document.getElementById('tableWrapper2'), limitedHeaders, list, false);
+      buildCustomTable(document.getElementById('tableWrapper2'), 'section2', list);
     }
 
     // ==========================================
-    // সেকশন ৩ ডিরেক্টরি লজিক
+    // 🟦 সেকশন ৩ — ডিরেক্টরি সার্চ বাটন লজিক
     // ==========================================
     function generateSec3HscButtons() {
-      const list = globalData.students;
-      const hscValues = [...new Set(list.map(s => s.hsc).filter(Boolean))].sort();
+      const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
       const btnGroup = document.getElementById('btnGroupHsc3');
       btnGroup.innerHTML = '';
 
       hscValues.forEach(hsc => {
         const btn = document.createElement('button');
-        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition duration-150 ${sec3SelectedHsc === hsc ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedHsc === hsc ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
         btn.innerText = hsc;
         btn.onclick = () => {
           sec3SelectedHsc = (sec3SelectedHsc === hsc) ? null : hsc;
           sec3SelectedBatch = null;
           document.getElementById('containerSec3Table').classList.add('hidden');
-          
           generateSec3HscButtons(); 
           handleSec3HscChange();
         };
@@ -524,21 +481,18 @@
 
     function handleSec3HscChange() {
       const container = document.getElementById('sec3BatchContainer');
-      if (!sec3SelectedHsc) {
-        container.classList.add('hidden');
-        return;
-      }
+      if (!sec3SelectedHsc) { container.classList.add('hidden'); return; }
 
       container.classList.remove('hidden');
-      const filteredList = globalData.students.filter(s => s.hsc === sec3SelectedHsc);
-      const batchValues = [...new Set(filteredList.map(s => s.batch).filter(Boolean))].sort();
+      const filtered = globalData.students.filter(x => x.hsc === sec3SelectedHsc);
+      const batchValues = [...new Set(filtered.map(x => x.batch).filter(Boolean))].sort();
       
       const btnGroup = document.getElementById('btnGroupBatch3');
       btnGroup.innerHTML = '';
 
       batchValues.forEach(b => {
         const btn = document.createElement('button');
-        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition duration-150 ${sec3SelectedBatch === b ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+        btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`;
         btn.innerText = b;
         btn.onclick = () => {
           sec3SelectedBatch = (sec3SelectedBatch === b) ? null : b;
@@ -551,34 +505,37 @@
 
     function handleSec3BatchChange() {
       const tableContainer = document.getElementById('containerSec3Table');
-      if (!sec3SelectedBatch) {
-        tableContainer.classList.add('hidden');
-        return;
-      }
+      if (!sec3SelectedBatch) { tableContainer.classList.add('hidden'); return; }
 
       tableContainer.classList.remove('hidden');
-      let list = globalData.students.filter(s => s.hsc === sec3SelectedHsc && s.batch === sec3SelectedBatch);
-
-      const targetHeaders = ['নাম', 'কলেজ', 'মোবাইল নাম্বার'];
-      buildTable(document.getElementById('tableWrapper3'), targetHeaders, list, false, true);
+      let list = globalData.students.filter(x => x.hsc === sec3SelectedHsc && x.batch === sec3SelectedBatch);
+      buildCustomTable(document.getElementById('tableWrapper3'), 'section3', list);
     }
 
     // ==========================================
-    // ছক মেকার ও ডায়াল প্যাড ইঞ্জিন (tel:)
+    // 🖥️ আল্ট্রা-নিরাপদ কাস্টম ছক রেন্ডারিং ইঞ্জিন
     // ==========================================
-    function buildTable(targetContainer, headers, list, showAllColumns = false, isSection3 = false) {
-      if (list.length === 0) {
+    function buildCustomTable(targetContainer, type, list) {
+      if (!list || list.length === 0) {
         targetContainer.innerHTML = `
           <div class="p-8 text-center font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-100 text-sm">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i> এই ক্যাটাগরিতে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i> এই ফিল্টারে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
           </div>`;
         return;
+      }
+
+      let headers = [];
+      if (type === 'section1') {
+        headers = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', 'ভর্তি ফি স্ট্যাটাস'];
+      } else if (type === 'section2') {
+        headers = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', `${globalData.prevMonthName} (পূর্বের মাস)`, `${globalData.currentMonthName} (চলতি মাস)`];
+      } else if (type === 'section3') {
+        headers = ['নাম', 'কলেজ', 'মোবাইল নাম্বার'];
       }
 
       let html = `<table class="min-w-full divide-y divide-gray-200 text-[13px]">
                     <thead class="bg-gray-50 sticky top-0 shadow-sm z-10">
                       <tr>`;
-      
       headers.forEach(h => {
         html += `<th class="px-4 py-3 text-gray-700 font-bold border-b border-gray-200 whitespace-nowrap text-center">${h}</th>`;
       });
@@ -587,32 +544,27 @@
       list.forEach(student => {
         html += `<tr class="hover:bg-slate-50 font-medium transition text-center text-gray-700">`;
         
-        if (isSection3) {
-          html += `<td class="px-4 py-3 text-gray-900 font-bold whitespace-nowrap">${student.name}</td>`;
-          html += `<td class="px-4 py-3 text-gray-500 whitespace-nowrap">${student.college}</td>`;
+        if (type === 'section1') {
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.name || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.college || '—'}</td>`;
           html += `<td class="px-4 py-3 whitespace-nowrap">${formatPhoneLink(student.phone)}</td>`;
-        } else if (showAllColumns) {
-          student.allDataRaw.forEach((cellValue, idx) => {
-            let displayedValue = cellValue;
-            
-            if (idx === globalData.headers.indexOf('মোবাইল নাম্বার')) {
-              displayedValue = formatPhoneLink(cellValue);
-              html += `<td class="px-4 py-3 whitespace-nowrap">${displayedValue}</td>`;
-            } else {
-              if (idx === globalData.headers.indexOf('ভর্তি ফি') || idx >= globalData.headers.indexOf('জানুয়ারি')) {
-                displayedValue = formatPaymentStatus(cellValue);
-              }
-              html += `<td class="px-4 py-3 whitespace-nowrap">${displayedValue}</td>`;
-            }
-          });
-        } else {
-          html += `<td class="px-4 py-3 text-gray-900 font-bold whitespace-nowrap">${student.name}</td>`;
-          html += `<td class="px-4 py-3 text-gray-500 whitespace-nowrap">${student.college}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.hsc || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.batch || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPaymentStatus(student.vortiFee)}</td>`;
+        } else if (type === 'section2') {
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.name || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.college || '—'}</td>`;
           html += `<td class="px-4 py-3 whitespace-nowrap">${formatPhoneLink(student.phone)}</td>`;
-          html += `<td class="px-4 py-3 text-gray-600 whitespace-nowrap">${student.hsc}</td>`;
-          html += `<td class="px-4 py-3 text-gray-600 whitespace-nowrap">${student.batch}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.hsc || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.batch || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPaymentStatus(student.prevMonthStatus)}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPaymentStatus(student.currentMonthStatus)}</td>`;
+        } else if (type === 'section3') {
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.name || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${student.college || '—'}</td>`;
+          html += `<td class="px-4 py-3 whitespace-nowrap">${formatPhoneLink(student.phone)}</td>`;
         }
-        
+
         html += `</tr>`;
       });
 
@@ -621,18 +573,19 @@
     }
 
     function formatPhoneLink(phone) {
-      if (!phone) return '<span class="text-gray-300">—</span>';
-      const cleanPhone = phone.replace(/[^0-9]/g, ''); // স্পেস বা হাইফেন পরিষ্কার
-      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline decoration-blue-400 hover:text-blue-800 transition bg-blue-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${phone}</a>`;
+      if (!phone || String(phone).trim() === '') return '<span class="text-gray-300">—</span>';
+      const cleanPhone = String(phone).replace(/[^0-9]/g, '');
+      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-[10px]"></i> ${phone}</a>`;
     }
 
     function formatPaymentStatus(val) {
+      if (val === undefined || val === null) return '<span class="text-gray-300">—</span>';
       const cleanVal = String(val).trim();
-      if (cleanVal === 'P') return '<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm">পেইড</span>';
-      if (cleanVal === 'U') return '<span class="px-2.5 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-full shadow-sm">আনপেইড</span>';
-      if (cleanVal === 'X') return '<span class="px-2.5 py-0.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-full shadow-sm">বাদ</span>';
-      if (!isNaN(cleanVal) && cleanVal !== '') {
-        return `<span class="px-2.5 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm"><i class="fa-solid fa-circle-check text-[10px]"></i> পেইড (${cleanVal})</span>`;
+      if (cleanVal === 'P') return '<span class="px-2 py-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm">পেইড</span>';
+      if (cleanVal === 'U' || cleanVal === '') return '<span class="px-2 py-0.5 text-[11px] font-bold text-red-700 bg-red-100 rounded-full shadow-sm">আনপেইড</span>';
+      if (cleanVal === 'X') return '<span class="px-2 py-0.5 text-[11px] font-bold text-gray-500 bg-gray-100 rounded-full shadow-sm">বাদ</span>';
+      if (!isNaN(cleanVal)) {
+        return `<span class="px-2 py-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 rounded-full shadow-sm"><i class="fa-solid fa-circle-check text-[10px]"></i> পেইড (${cleanVal})</span>`;
       }
       return val;
     }
