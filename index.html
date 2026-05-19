@@ -154,7 +154,7 @@
         </div>
       </section>
 
-      <!-- 🟦 ৩য় ভাগ — সার্চ ডিরেক্টরি -->
+      <!-- 🟦 ৩য় ভাগ — সার্চ ডিরেক্টরি (উন্নত ফিল্টারিং ও ডিবাগ) -->
       <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 mb-10">
         <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
           <span class="text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-address-book"></i></span>
@@ -164,11 +164,15 @@
         <div class="space-y-4">
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
             <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষার্থী নির্বাচন</p>
-            <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
+            <div id="btnGroupHsc3" class="flex flex-wrap gap-2">
+              <!-- ডাইনামিক বাটন জেনারেট হবে -->
+            </div>
+            <div id="hscDebugMsg" class="text-xs text-red-600 bg-red-50 p-2 rounded-lg mt-2 hidden"></div>
           </div>
           <div id="sec3BatchContainer" class="bg-slate-50 p-4 rounded-xl border border-slate-100 hidden">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ নির্বাচন</p>
             <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
+            <div id="batchDebugMsg" class="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg mt-2 hidden"></div>
           </div>
           <div id="containerSec3Table" class="hidden pt-4">
             <div class="table-container border border-gray-200 rounded-xl bg-white shadow-inner">
@@ -183,12 +187,12 @@
 
   <script>
     // ⏰ সময় অঞ্চল সেটিংস — ঢাকা (+6)
-    const TIMEZONE_OFFSET = 6; // ঢাকা = UTC +6:00
+    const TIMEZONE_OFFSET = 6;
 
-    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
+    // 👈 ১. আপনার গুগল এপিআই লিঙ্ক
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
-    // 👈 ২. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
+    // 👈 ২. অ্যাপ পাসওয়ার্ড
     const APP_SECRET_PASSWORD = "321"; 
 
     let globalData = null;
@@ -199,26 +203,17 @@
     let sec2SelectedHsc = null, sec2SelectedBatch = null;
     let sec3SelectedHsc = null, sec3SelectedBatch = null;
 
-    // সেকশন ১ এর জন্য প্রয়োজনীয় কলামগুলি
     const SECTION1_COLUMNS = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', 'প্রথম ক্লাসের তারিখ', 'ভর্তি ফি'];
 
-    /**
-     * ঢাকা সময় অঞ্চল অনুযায়ী বর্তমান সময় ফেরত দেয়
-     */
     function getDhakaTime() {
       const utcDate = new Date();
       const utcTime = utcDate.getTime() + utcDate.getTimezoneOffset() * 60000;
-      const dhakaDate = new Date(utcTime + TIMEZONE_OFFSET * 3600000);
-      return dhakaDate;
+      return new Date(utcTime + TIMEZONE_OFFSET * 3600000);
     }
 
-    /**
-     * ঢাকা সময় অঞ্চলে ফরম্যাট করা সময় রিটার্ন করে
-     */
     function formatDhakaTime(date) {
       const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
       const days = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
-      
       const day = days[date.getDay()];
       const dayNum = date.getDate();
       const month = months[date.getMonth()];
@@ -226,11 +221,10 @@
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
-      
       return `${day}, ${dayNum} ${month} ${year} — ${hours}:${minutes}:${seconds}`;
     }
 
-    window.addEventListener('DOMContentLoaded', () => { checkSession(); });
+    window.addEventListener('DOMContentLoaded', checkSession);
 
     function checkSession() {
       const loginTime = localStorage.getItem('primerLoginTime');
@@ -244,7 +238,6 @@
     function handleLogin() {
       const pwd = document.getElementById('appPassword').value.trim();
       const err = document.getElementById('loginError');
-      
       if (pwd === APP_SECRET_PASSWORD) {
         err.classList.add('hidden');
         localStorage.setItem('primerLoginTime', new Date().getTime());
@@ -265,14 +258,16 @@
         document.getElementById('globalLoader').classList.add('hidden');
         if (res.success) {
           globalData = res;
+          console.log("✅ ডেটা লোড হয়েছে:", globalData);
           showDashboard();
         } else {
           alert('ত্রুটি: ' + res.message);
           hideDashboard();
         }
       })
-      .catch(() => {
+      .catch(err => {
         document.getElementById('globalLoader').classList.add('hidden');
+        console.error(err);
         alert('নেটওয়ার্ক সমস্যা অথবা এপিআই লিঙ্কটি ভুল।');
         hideDashboard();
       });
@@ -285,11 +280,8 @@
 
     function showDashboard() {
       document.getElementById('dashboardBody').classList.remove('hidden');
-      
-      // ঢাকা সময় অনুযায়ী টাইমস্ট্যাম্প ডিসপ্লে করুন
       const dhakaTime = getDhakaTime();
-      const formattedTime = formatDhakaTime(dhakaTime);
-      document.getElementById('liveTimestamp').innerText = `সর্বশেষ আপডেট: ${formattedTime}`;
+      document.getElementById('liveTimestamp').innerText = `সর্বশেষ আপডেট: ${formatDhakaTime(dhakaTime)}`;
       
       for(let el of document.getElementsByClassName('lblCurrentMonth')) el.innerText = globalData.currentMonthName;
       for(let el of document.getElementsByClassName('lblPrevMonth')) el.innerText = globalData.prevMonthName;
@@ -301,7 +293,6 @@
     function calculateStatistics() {
       const s = globalData.students;
       const valid = s.filter(x => x.vortiFee !== 'X' && x.vortiFee !== '');
-      
       document.getElementById('countTotal').innerText = valid.length;
       document.getElementById('countVortiPaid').innerText = valid.filter(x => x.vortiFee === 'P' || (!isNaN(x.vortiFee) && x.vortiFee !== '')).length;
       document.getElementById('countVortiUnpaid').innerText = valid.filter(x => x.vortiFee === 'U').length;
@@ -312,9 +303,7 @@
       document.getElementById('countPrevMonthUnpaid').innerText = s.filter(x => x.prevMonthStatus === 'U').length;
     }
 
-    // ==========================================
-    // সেকশন ১ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
-    // ==========================================
+    // ========== সেকশন ১ ==========
     function toggleMainCard(type) {
       if (activeSection1Card === type) {
         activeSection1Card = null;
@@ -358,7 +347,6 @@
         batchWrapper.classList.remove('hidden');
         let filteredForBatch = list.filter(x => x.hsc === sec1SelectedHsc);
         const batchValues = [...new Set(filteredForBatch.map(x => x.batch).filter(Boolean))].sort();
-        
         batchWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
         batchValues.forEach(b => {
           const btn = document.createElement('button');
@@ -376,13 +364,10 @@
 
       if (sec1SelectedHsc) list = list.filter(x => x.hsc === sec1SelectedHsc);
       if (sec1SelectedBatch) list = list.filter(x => x.batch === sec1SelectedBatch);
-
       buildTable(document.getElementById('tableWrapper1'), SECTION1_COLUMNS, list, true);
     }
 
-    // ==========================================
-    // সেকশন ২ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
-    // ==========================================
+    // ========== সেকশন ২ ==========
     function toggleMonthCard(type) {
       if (activeSection2Card === type) {
         activeSection2Card = null;
@@ -427,7 +412,6 @@
         batchWrapper.classList.remove('hidden');
         let filteredForBatch = list.filter(x => x.hsc === sec2SelectedHsc);
         const batchValues = [...new Set(filteredForBatch.map(x => x.batch).filter(Boolean))].sort();
-        
         batchWrapper.innerHTML = `<span class="text-slate-500 font-bold mr-1"><i class="fa-solid fa-sliders"></i> ব্যাচ:</span>`;
         batchValues.forEach(b => {
           const btn = document.createElement('button');
@@ -445,18 +429,32 @@
 
       if (sec2SelectedHsc) list = list.filter(x => x.hsc === sec2SelectedHsc);
       if (sec2SelectedBatch) list = list.filter(x => x.batch === sec2SelectedBatch);
-
       const tuitionHeaders = globalData.headers.slice(0, 5); 
       buildTable(document.getElementById('tableWrapper2'), tuitionHeaders, list, false);
     }
 
-    // ==========================================
-    // সেকশন ৩ — ডিরেক্টরি সার্চ বাটন লজিক
-    // ==========================================
+    // ========== সেকশন ৩ (ডিরেক্টরি) — উন্নত ডিবাগিং সহ ==========
     function generateSec3HscButtons() {
-      const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
       const btnGroup = document.getElementById('btnGroupHsc3');
+      const debugEl = document.getElementById('hscDebugMsg');
       btnGroup.innerHTML = '';
+      debugEl.classList.add('hidden');
+
+      // চেক: globalData.students আছে কিনা এবং প্রতিটির hsc প্রপার্টি
+      if (!globalData || !globalData.students || globalData.students.length === 0) {
+        debugEl.innerText = '❌ কোনো শিক্ষার্থী ডেটা পাওয়া যায়নি।';
+        debugEl.classList.remove('hidden');
+        return;
+      }
+
+      const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
+      console.log("🔍 ইউনিক এইচএসসি মান:", hscValues);
+
+      if (hscValues.length === 0) {
+        debugEl.innerText = '⚠️ "এইচএসসি" কলামের কোনো ডেটা পাওয়া যায়নি। দয়া করে Google Sheet-এ কলামের নাম "এইচএসসি" (স্পেস ছাড়া) চেক করুন।';
+        debugEl.classList.remove('hidden');
+        return;
+      }
 
       hscValues.forEach(hsc => {
         const btn = document.createElement('button');
@@ -475,15 +473,26 @@
 
     function handleSec3HscChange() {
       const container = document.getElementById('sec3BatchContainer');
-      if (!sec3SelectedHsc) { container.classList.add('hidden'); return; }
+      const debugEl = document.getElementById('batchDebugMsg');
+      container.classList.add('hidden');
+      debugEl.classList.add('hidden');
+      document.getElementById('btnGroupBatch3').innerHTML = '';
 
-      container.classList.remove('hidden');
+      if (!sec3SelectedHsc) return;
+
       const filtered = globalData.students.filter(x => x.hsc === sec3SelectedHsc);
       const batchValues = [...new Set(filtered.map(x => x.batch).filter(Boolean))].sort();
-      
-      const btnGroup = document.getElementById('btnGroupBatch3');
-      btnGroup.innerHTML = '';
+      console.log(`🔍 ${sec3SelectedHsc} এর ব্যাচ মান:`, batchValues);
 
+      if (batchValues.length === 0) {
+        debugEl.innerText = `⚠️ "${sec3SelectedHsc}" এর জন্য কোনো ব্যাচ ডেটা পাওয়া যায়নি। "ব্যাচ" কলাম চেক করুন।`;
+        debugEl.classList.remove('hidden');
+        container.classList.remove('hidden'); // কন্টেইনার দেখিয়েই বার্তা দিন
+        return;
+      }
+
+      container.classList.remove('hidden');
+      const btnGroup = document.getElementById('btnGroupBatch3');
       batchValues.forEach(b => {
         const btn = document.createElement('button');
         btn.className = `px-3.5 py-1.5 rounded-lg border text-xs font-bold shadow-sm cursor-pointer transition ${sec3SelectedBatch === b ? 'active-btn' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100'}`;
@@ -499,54 +508,47 @@
 
     function handleSec3BatchChange() {
       const tableContainer = document.getElementById('containerSec3Table');
-      if (!sec3SelectedBatch) { tableContainer.classList.add('hidden'); return; }
+      if (!sec3SelectedBatch) {
+        tableContainer.classList.add('hidden');
+        return;
+      }
 
       tableContainer.classList.remove('hidden');
       let list = globalData.students.filter(x => x.hsc === sec3SelectedHsc && x.batch === sec3SelectedBatch);
+      console.log(`📊 ${sec3SelectedHsc} - ${sec3SelectedBatch} এর ডেটা:`, list.length, 'জন');
       buildTable(document.getElementById('tableWrapper3'), ['নাম', 'কলেজ', 'মোবাইল নাম্বার'], list, false, true);
     }
 
-    // ==========================================
-    // 🖥️ আল্ট্রা-স্ট্যাবল ছক রেন্ডারিং ইঞ্জিন
-    // ==========================================
+    // ========== ছক নির্মাণ ==========
     function buildTable(targetContainer, headersToDisplay, list, isSection1 = false, isSection3 = false) {
       if (list.length === 0) {
-        targetContainer.innerHTML = `
-          <div class="p-8 text-center font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-100 text-sm">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i> কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
-          </div>`;
+        targetContainer.innerHTML = `<div class="p-8 text-center font-bold text-amber-600 bg-amber-50 rounded-xl border border-amber-100 text-sm">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i> কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি!
+        </div>`;
         return;
       }
 
       let html = `<table class="min-w-full divide-y divide-gray-200 text-[13px]">
-                    <thead class="bg-gray-50 sticky top-0 shadow-sm z-10">
-                      <tr>`;
-      
-      headersToDisplay.forEach(h => {
-        html += `<th class="px-4 py-3 text-gray-700 font-bold border-b border-gray-200 whitespace-nowrap text-center">${h}</th>`;
-      });
+                    <thead class="bg-gray-50 sticky top-0 shadow-sm z-10"><tr>`;
+      headersToDisplay.forEach(h => html += `<th class="px-4 py-3 text-gray-700 font-bold border-b border-gray-200 whitespace-nowrap text-center">${h}</th>`);
       html += `</tr></thead><tbody class="bg-white divide-y divide-gray-100">`;
 
       list.forEach(student => {
         html += `<tr class="hover:bg-slate-50 font-medium transition text-center text-gray-700">`;
-        
         headersToDisplay.forEach(h => {
           let globalIdx = globalData.headers.findIndex(headerName => headerName.replace(/\s+/g, '').toLowerCase() === h.replace(/\s+/g, '').toLowerCase());
           let cellValue = (globalIdx !== -1 && student.allDataRaw[globalIdx] !== undefined) ? student.allDataRaw[globalIdx] : "";
           let displayedValue = cellValue;
-          
+
           if (h.includes("মোবাইল") || h.includes("ফোন")) {
             displayedValue = formatPhoneLink(cellValue);
-          } 
-          else if (isSection1 && (h.includes("ভর্তি") || globalIdx >= globalData.headers.findIndex(x => x.includes(globalData.currentMonthName)))) {
+          } else if (isSection1 && (h.includes("ভর্তি") || globalIdx >= globalData.headers.findIndex(x => x.includes(globalData.currentMonthName)))) {
             displayedValue = formatPaymentStatus(cellValue);
           } else if (!isSection1 && !isSection3 && (h.includes(globalData.currentMonthName) || h.includes(globalData.prevMonthName))) {
             displayedValue = formatPaymentStatus(cellValue);
           }
-          
           html += `<td class="px-4 py-3 whitespace-nowrap">${displayedValue}</td>`;
         });
-        
         html += `</tr>`;
       });
 
@@ -554,9 +556,7 @@
       targetContainer.innerHTML = html;
     }
 
-    /**
-     * মোবাইল নাম্বার ও কল বাটন উভয়ই দেখানোর জন্য আপডেটেড ফাংশন
-     */
+    // 📞 মোবাইল: নাম্বার + কল আইকন
     function formatPhoneLink(phone) {
       if (!phone) return '<span class="text-gray-300">—</span>';
       const cleanPhone = String(phone).replace(/[^0-9]/g, '');
