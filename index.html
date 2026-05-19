@@ -111,7 +111,7 @@
         </div>
       </section>
 
-      <!-- 🟨 २य় ভাগ — টিউশন ট্র্যাকিং -->
+      <!-- 🟨 ২য় ভাগ — টিউশন ট্র্যাকিং -->
       <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
         <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
           <span class="text-amber-600 bg-amber-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-wallet"></i></span>
@@ -142,7 +142,7 @@
           </div>
         </div>
 
-        <!-- २य় ভাগের ফিল্টার ও ছক ক্লিকে ওপেন হবে -->
+        <!-- ২য় ভাগের ফিল্টার ও ছক ক্লিকে ওপেন হবে -->
         <div id="containerSec2" class="hidden mt-6 pt-5 border-t border-dashed border-gray-200">
           <div class="flex flex-col gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200/60 mb-4 text-xs md:text-sm">
             <div id="optFilterHsc2" class="flex flex-wrap items-center gap-1.5"></div>
@@ -154,7 +154,7 @@
         </div>
       </section>
 
-      <!-- 🟦 ३य় ভাগ — সার্চ ডিরেক্টরি -->
+      <!-- 🟦 ৩য় ভাগ — সার্চ ডিরেক্টরি -->
       <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 mb-10">
         <div class="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
           <span class="text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-address-book"></i></span>
@@ -163,11 +163,11 @@
 
         <div class="space-y-4">
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ १: এইচএসসি (HSC) শিক্ষার্থী নির্বাচন</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-layer-group mr-1"></i> ধাপ ১: এইচএসসি (HSC) শিক্ষার্থী নির্বাচন</p>
             <div id="btnGroupHsc3" class="flex flex-wrap gap-2"></div>
           </div>
           <div id="sec3BatchContainer" class="bg-slate-50 p-4 rounded-xl border border-slate-100 hidden">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ २: নির্দিষ্ট ব্যাচ</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5"><i class="fa-solid fa-users-rectangle mr-1"></i> ধাপ ২: নির্দিষ্ট ব্যাচ</p>
             <div id="btnGroupBatch3" class="flex flex-wrap gap-2"></div>
           </div>
           <div id="containerSec3Table" class="hidden pt-4">
@@ -185,10 +185,10 @@
     // ⏰ সময় অঞ্চল সেটিংস — ঢাকা (+6)
     const TIMEZONE_OFFSET = 6; // ঢাকা = UTC +6:00
 
-    // 👈 १. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
+    // 👈 ১. আপনার গুগল এপিআই লিঙ্কটি এখানে দিন
     const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxS_H9Tl4r65nu3v_wUkLDOxJvHc-g7gj8Hx_0pucB9M3kgkBj6b5ZE25u1wLR6MhpXTg/exec";
     
-    // 👈 २. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
+    // 👈 ২. আপনার কাস্টম অ্যাপ পাসওয়ার্ড
     const APP_SECRET_PASSWORD = "321"; 
 
     let globalData = null;
@@ -199,7 +199,7 @@
     let sec2SelectedHsc = null, sec2SelectedBatch = null;
     let sec3SelectedHsc = null, sec3SelectedBatch = null;
 
-    // সেকশন १ এর জন্য প্রয়োজনীয় কলামগুলি
+    // সেকশন ১ এর জন্য প্রয়োজনীয় কলামগুলি
     const SECTION1_COLUMNS = ['নাম', 'কলেজ', 'মোবাইল নাম্বার', 'এইচএসসি', 'ব্যাচ', 'প্রথম ক্লাসের তারিখ', 'ভর্তি ফি'];
 
     /**
@@ -313,7 +313,7 @@
     }
 
     // ==========================================
-    // सेकशन १ — अन/अफ फिल्टर बाटन ও ছक मेकानिजम
+    // সেকশন ১ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
     // ==========================================
     function toggleMainCard(type) {
       if (activeSection1Card === type) {
@@ -381,7 +381,7 @@
     }
 
     // ==========================================
-    // সেকশन २ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
+    // সেকশন ২ — অন/অফ ফিল্টার বাটন ও ছক মেকানিজম
     // ==========================================
     function toggleMonthCard(type) {
       if (activeSection2Card === type) {
@@ -451,7 +451,7 @@
     }
 
     // ==========================================
-    // সেকশন ३ — ডিরেক্টরি সার্চ বাটন লজিক
+    // সেকশন ৩ — ডিরেক্টরি সার্চ বাটন লজিক
     // ==========================================
     function generateSec3HscButtons() {
       const hscValues = [...new Set(globalData.students.map(x => x.hsc).filter(Boolean))].sort();
@@ -554,10 +554,18 @@
       targetContainer.innerHTML = html;
     }
 
+    /**
+     * মোবাইল নাম্বার ও কল বাটন উভয়ই দেখানোর জন্য আপডেটেড ফাংশন
+     */
     function formatPhoneLink(phone) {
       if (!phone) return '<span class="text-gray-300">—</span>';
       const cleanPhone = String(phone).replace(/[^0-9]/g, '');
-      return `<a href="tel:${cleanPhone}" class="text-blue-600 font-bold underline hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-phone text-xs"></i></a>`;
+      return `<span class="inline-flex items-center gap-1.5">
+                <span class="text-gray-800 font-medium">${phone}</span>
+                <a href="tel:${cleanPhone}" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-full inline-flex items-center justify-center shadow-sm transition" title="কল করুন">
+                  <i class="fa-solid fa-phone text-xs"></i>
+                </a>
+              </span>`;
     }
 
     function formatPaymentStatus(val) {
